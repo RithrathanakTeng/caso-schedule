@@ -2,41 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Caso Schedule Pro Design System - Professional Academic Scheduling Platform */
 
 @layer base {
   :root {
+    /* Core Color Palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 215 25% 27%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 27%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 27%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Deep Blue (Trust & Professionalism) */
+    --primary: 215 100% 20%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 215 100% 35%;
+    --primary-dark: 215 100% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary: Emerald Green (Growth & Success) */
+    --secondary: 158 64% 52%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 158 64% 65%;
+    --secondary-dark: 158 64% 40%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent: Orange (AI & Energy) */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 65%;
+    --accent-dark: 25 95% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Neutral Grays */
+    --muted: 215 16% 97%;
+    --muted-foreground: 215 16% 65%;
+    --muted-dark: 215 16% 85%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Utility Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+    --warning: 42 100% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* UI Elements */
+    --border: 215 16% 92%;
+    --input: 215 16% 95%;
+    --ring: 215 100% 20%;
+    --radius: 0.75rem;
 
-    --radius: 0.5rem;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(215 100% 20%), hsl(215 100% 35%));
+    --gradient-secondary: linear-gradient(135deg, hsl(158 64% 40%), hsl(158 64% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 45%), hsl(25 95% 65%));
+    --gradient-hero: linear-gradient(135deg, hsl(215 100% 15%) 0%, hsl(215 100% 25%) 50%, hsl(158 64% 40%) 100%);
+    --gradient-ai: linear-gradient(135deg, hsl(215 100% 20%), hsl(25 95% 53%));
+
+    /* Shadows */
+    --shadow-elegant: 0 20px 25px -5px hsl(215 25% 27% / 0.1), 0 10px 10px -5px hsl(215 25% 27% / 0.04);
+    --shadow-glow: 0 0 40px hsl(215 100% 20% / 0.15);
+    --shadow-accent: 0 10px 30px -10px hsl(25 95% 53% / 0.3);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +132,55 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', 'Battambang', sans-serif;
+  }
+
+  /* Khmer Typography */
+  .font-khmer {
+    font-family: 'Battambang', sans-serif;
+  }
+
+  .font-english {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Custom Gradient Backgrounds */
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-ai {
+    background: var(--gradient-ai);
+  }
+
+  /* Custom Animations */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  /* AI-themed elements */
+  .ai-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .ai-accent-glow {
+    box-shadow: var(--shadow-accent);
   }
 }
