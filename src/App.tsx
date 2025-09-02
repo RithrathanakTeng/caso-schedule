@@ -14,6 +14,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import PurchaseAdmin from "./pages/PurchaseAdmin";
+import AdminSetup from "./pages/AdminSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +73,8 @@ const App = () => (
             } />
             {/* Auth routes without navbar */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/purchase-admin" element={<PurchaseAdmin />} />
+            <Route path="/admin-setup" element={<AdminSetup />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

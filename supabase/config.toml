@@ -1,1 +1,7 @@
 project_id = "wmfkcchajdcehvjomfdr"
+
+[functions.create-admin-payment]
+verify_jwt = false
+
+[functions.verify-admin-payment]
+verify_jwt = false

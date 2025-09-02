@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, School, Users, GraduationCap } from 'lucide-react';
+import { Loader2, School, Users, GraduationCap, Crown } from 'lucide-react';
 
 interface Institution {
   id: string;
@@ -182,6 +182,37 @@ const Auth = () => {
               <SignUpForm onSubmit={handleSignUp} loading={loading} />
             </TabsContent>
           </Tabs>
+
+          {/* Purchase Admin Access */}
+          <div className="mt-6 pt-6 border-t border-border">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="h-px bg-border flex-1"></div>
+                <span className="text-sm text-muted-foreground px-2">Need Admin Access?</span>
+                <div className="h-px bg-border flex-1"></div>
+              </div>
+              
+              <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+                <CardContent className="pt-4 pb-4">
+                  <div className="text-center space-y-3">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Crown className="h-5 w-5 text-warning" />
+                      <span className="font-medium">Create Your Institution</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Purchase admin access to set up your own school or university
+                    </p>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/purchase-admin">
+                        <Crown className="h-4 w-4 mr-2" />
+                        Get Admin License - $99
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
