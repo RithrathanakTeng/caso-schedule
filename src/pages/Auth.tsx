@@ -1,0 +1,320 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Loader2, School, Users, GraduationCap } from 'lucide-react';
+
+interface Institution {
+  id: string;
+  name: string;
+  name_khmer?: string;
+}
+
+const Auth = () => {
+  const [loading, setLoading] = useState(false);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<string>('');
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  // Fetch institutions
+  useEffect(() => {
+    const fetchInstitutions = async () => {
+      const { data, error } = await supabase
+        .from('institutions')
+        .select('id, name, name_khmer')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching institutions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load institutions",
+          variant: "destructive",
+        });
+      } else {
+        setInstitutions(data || []);
+      }
+    };
+
+    fetchInstitutions();
+  }, [toast]);
+
+  const handleSignIn = async (email: string, password: string) => {
+    if (!selectedInstitution) {
+      toast({
+        title: "Institution Required",
+        description: "Please select your institution",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({
+        title: "Sign In Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleSignUp = async (
+    email: string, 
+    password: string, 
+    firstName: string, 
+    lastName: string,
+    firstNameKhmer?: string,
+    lastNameKhmer?: string,
+    role: 'teacher' | 'coordinator' = 'teacher'
+  ) => {
+    if (!selectedInstitution) {
+      toast({
+        title: "Institution Required",
+        description: "Please select your institution",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const redirectUrl = `${window.location.origin}/dashboard`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          institution_id: selectedInstitution,
+          first_name: firstName,
+          last_name: lastName,
+          first_name_khmer: firstNameKhmer,
+          last_name_khmer: lastNameKhmer,
+          role: role,
+        }
+      }
+    });
+
+    if (error) {
+      toast({
+        title: "Sign Up Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Check Your Email",
+        description: "We've sent you a confirmation link",
+      });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 p-3 bg-gradient-primary rounded-full w-fit">
+            <School className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <CardTitle className="text-2xl">Caso Schedule Pro</CardTitle>
+          <CardDescription>
+            AI-Powered Academic Scheduling
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4">
+            <Label htmlFor="institution">Institution</Label>
+            <Select value={selectedInstitution} onValueChange={setSelectedInstitution}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your institution" />
+              </SelectTrigger>
+              <SelectContent>
+                {institutions.map((institution) => (
+                  <SelectItem key={institution.id} value={institution.id}>
+                    <div>
+                      <div>{institution.name}</div>
+                      {institution.name_khmer && (
+                        <div className="text-sm text-muted-foreground">{institution.name_khmer}</div>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
+              <SignInForm onSubmit={handleSignIn} loading={loading} />
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <SignUpForm onSubmit={handleSignUp} loading={loading} />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const SignInForm = ({ onSubmit, loading }: { onSubmit: (email: string, password: string) => void; loading: boolean }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(email, password);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="signin-email">Email</Label>
+        <Input
+          id="signin-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="signin-password">Password</Label>
+        <Input
+          id="signin-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      </div>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        Sign In
+      </Button>
+    </form>
+  );
+};
+
+const SignUpForm = ({ onSubmit, loading }: { onSubmit: (email: string, password: string, firstName: string, lastName: string, firstNameKhmer?: string, lastNameKhmer?: string, role?: 'teacher' | 'coordinator') => void; loading: boolean }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstNameKhmer, setFirstNameKhmer] = useState('');
+  const [lastNameKhmer, setLastNameKhmer] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(email, password, firstName, lastName, firstNameKhmer, lastNameKhmer);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="first-name">First Name</Label>
+          <Input
+            id="first-name"
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="last-name">Last Name</Label>
+          <Input
+            id="last-name"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="first-name-khmer">First Name (Khmer)</Label>
+          <Input
+            id="first-name-khmer"
+            type="text"
+            value={firstNameKhmer}
+            onChange={(e) => setFirstNameKhmer(e.target.value)}
+            placeholder="ឈ្មោះដំបូង"
+          />
+        </div>
+        <div>
+          <Label htmlFor="last-name-khmer">Last Name (Khmer)</Label>
+          <Input
+            id="last-name-khmer"
+            type="text"
+            value={lastNameKhmer}
+            onChange={(e) => setLastNameKhmer(e.target.value)}
+            placeholder="នាមត្រកូល"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="signup-email">Email</Label>
+        <Input
+          id="signup-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="signup-password">Password</Label>
+        <Input
+          id="signup-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength={6}
+        />
+      </div>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        Sign Up
+      </Button>
+    </form>
+  );
+};
+
+export default Auth;

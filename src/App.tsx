@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Features from "./pages/Features";
@@ -11,6 +12,8 @@ import HowItWorks from "./pages/HowItWorks";
 import AIAdvantage from "./pages/AIAdvantage";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,17 +24,57 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/user-roles" element={<UserRoles />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/ai-advantage" element={<AIAdvantage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* Public routes with navbar */}
+            <Route path="/" element={
+              <>
+                <Navbar />
+                <Home />
+              </>
+            } />
+            <Route path="/features" element={
+              <>
+                <Navbar />
+                <Features />
+              </>
+            } />
+            <Route path="/user-roles" element={
+              <>
+                <Navbar />
+                <UserRoles />
+              </>
+            } />
+            <Route path="/how-it-works" element={
+              <>
+                <Navbar />
+                <HowItWorks />
+              </>
+            } />
+            <Route path="/ai-advantage" element={
+              <>
+                <Navbar />
+                <AIAdvantage />
+              </>
+            } />
+            <Route path="/about" element={
+              <>
+                <Navbar />
+                <About />
+              </>
+            } />
+            <Route path="/contact" element={
+              <>
+                <Navbar />
+                <Contact />
+              </>
+            } />
+            {/* Auth routes without navbar */}
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

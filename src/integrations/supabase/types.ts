@@ -14,16 +14,169 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      institutions: {
+        Row: {
+          address: string | null
+          address_khmer: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          name_khmer: string | null
+          phone: string | null
+          settings: Json | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          address_khmer?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          name_khmer?: string | null
+          phone?: string | null
+          settings?: Json | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          address_khmer?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          name_khmer?: string | null
+          phone?: string | null
+          settings?: Json | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          first_name: string
+          first_name_khmer: string | null
+          id: string
+          institution_id: string
+          is_active: boolean | null
+          last_name: string
+          last_name_khmer: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          first_name_khmer?: string | null
+          id?: string
+          institution_id: string
+          is_active?: boolean | null
+          last_name: string
+          last_name_khmer?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          first_name_khmer?: string | null
+          id?: string
+          institution_id?: string
+          is_active?: boolean | null
+          last_name?: string
+          last_name_khmer?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          institution_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          institution_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          institution_id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_institution_id: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
+      get_user_roles: {
+        Args: { inst_id: string; user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"][]
+      }
+      has_role: {
+        Args: {
+          inst_id: string
+          required_role: Database["public"]["Enums"]["user_role"]
+          user_uuid: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "coordinator" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +303,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "coordinator", "teacher"],
+    },
   },
 } as const
