@@ -20,8 +20,16 @@ serve(async (req) => {
       throw new Error("Email and institution name are required");
     }
 
+    // Get and validate Stripe key
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    console.log("Stripe key status:", stripeKey ? "present" : "missing");
+    
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
