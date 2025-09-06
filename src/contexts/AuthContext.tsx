@@ -90,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
+        setLoading(false);
         return;
       }
 
@@ -103,10 +104,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (rolesError) {
         console.error('Error fetching roles:', rolesError);
-        return;
+        setUserRoles([]);
+      } else {
+        setUserRoles(rolesData || []);
       }
-
-      setUserRoles(rolesData || []);
 
       // Fetch institution
       if (profileData?.institution_id) {
@@ -118,13 +119,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (institutionError) {
           console.error('Error fetching institution:', institutionError);
-          return;
+        } else {
+          setInstitution(institutionData);
         }
-
-        setInstitution(institutionData);
       }
     } catch (error) {
       console.error('Error in fetchUserData:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,9 +143,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
           setUserRoles([]);
           setInstitution(null);
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
