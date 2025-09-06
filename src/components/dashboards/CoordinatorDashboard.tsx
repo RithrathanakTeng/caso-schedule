@@ -184,19 +184,19 @@ const CoordinatorDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <div className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="p-1.5 sm:p-2 bg-gradient-primary rounded-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-primary rounded-lg">
                 <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-semibold">Coordinator Dashboard</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{institution?.name}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold truncate">Coordinator Dashboard</h1>
+                <p className="text-sm text-muted-foreground hidden sm:block truncate">{institution?.name}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="text-right hidden md:block">
+            <div className="flex items-center space-x-2">
+              <div className="text-right hidden lg:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
                 </p>
@@ -204,15 +204,15 @@ const CoordinatorDashboard = () => {
               </div>
               <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage src={profile?.avatar_url} />
-                <AvatarFallback>
+                <AvatarFallback className="text-xs">
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
+              <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:inline-flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
-              <Button variant="outline" size="sm" onClick={signOut} className="sm:hidden p-2">
+              <Button variant="outline" size="icon" onClick={signOut} className="sm:hidden">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -220,69 +220,81 @@ const CoordinatorDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 sm:pb-3">
               <CardTitle className="text-sm font-medium flex items-center">
                 <Users className="h-4 w-4 mr-2 text-primary" />
-                Teachers
+                <span className="hidden sm:inline">Teachers</span>
+                <span className="sm:hidden">Staff</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.availableTeachers}/{stats.totalTeachers}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.availableTeachers}/{stats.totalTeachers}</div>
               <p className="text-xs text-muted-foreground">Available/Total</p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 sm:pb-3">
               <CardTitle className="text-sm font-medium flex items-center">
                 <BookOpen className="h-4 w-4 mr-2 text-success" />
                 Courses
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalCourses}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.totalCourses}</div>
               <p className="text-xs text-muted-foreground">Active courses</p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 sm:pb-3">
               <CardTitle className="text-sm font-medium flex items-center">
                 <CalendarDays className="h-4 w-4 mr-2 text-accent" />
-                Schedules
+                <span className="hidden sm:inline">Schedules</span>
+                <span className="sm:hidden">Sched</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.activeSchedules}</div>
-              <p className="text-xs text-muted-foreground">Published schedules</p>
+              <div className="text-xl sm:text-2xl font-bold">{stats.activeSchedules}</div>
+              <p className="text-xs text-muted-foreground">Published</p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 sm:pb-3">
               <CardTitle className="text-sm font-medium flex items-center">
                 <AlertTriangle className="h-4 w-4 mr-2 text-warning" />
-                Conflicts
+                <span className="hidden sm:inline">Conflicts</span>
+                <span className="sm:hidden">Issues</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{conflicts.length}</div>
-              <p className="text-xs text-muted-foreground">Unresolved conflicts</p>
+              <div className="text-xl sm:text-2xl font-bold">{conflicts.length}</div>
+              <p className="text-xs text-muted-foreground">Unresolved</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="schedules" className="text-xs sm:text-sm">Schedules</TabsTrigger>
-            <TabsTrigger value="teachers" className="text-xs sm:text-sm">Teachers</TabsTrigger>
-            <TabsTrigger value="courses" className="text-xs sm:text-sm">Courses</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+              <span className="hidden sm:inline">Overview</span>
+              <span className="sm:hidden">Home</span>
+            </TabsTrigger>
+            <TabsTrigger value="schedules" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+              <span className="hidden sm:inline">Schedules</span>
+              <span className="sm:hidden">Sched</span>
+            </TabsTrigger>
+            <TabsTrigger value="teachers" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+              <span className="hidden sm:inline">Teachers</span>
+              <span className="sm:hidden">Staff</span>
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Courses</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -362,7 +374,7 @@ const CoordinatorDashboard = () => {
                       Create, edit, and manage academic timetables
                     </CardDescription>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <ScheduleDialog mode="ai" onScheduleCreated={fetchSchedules} />
                     <ScheduleDialog mode="manual" onScheduleCreated={fetchSchedules} />
                   </div>
@@ -382,10 +394,10 @@ const CoordinatorDashboard = () => {
                           <span>{schedule.generation_method === 'ai' ? 'AI Generated' : 'Manual'}</span>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">Edit</Button>
+                      <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 sm:gap-0">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">Edit</Button>
                         {schedule.status === 'draft' && (
-                          <Button size="sm">Publish</Button>
+                          <Button size="sm" className="w-full sm:w-auto">Publish</Button>
                         )}
                       </div>
                     </div>
@@ -418,19 +430,19 @@ const CoordinatorDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-primary">{stats.totalTeachers}</div>
-                    <div className="text-sm text-muted-foreground">Total Teachers</div>
+                  <div className="text-center p-3 sm:p-4 border rounded">
+                    <div className="text-xl sm:text-2xl font-bold text-primary">{stats.totalTeachers}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">Total Teachers</div>
                   </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-success">{stats.availableTeachers}</div>
-                    <div className="text-sm text-muted-foreground">Available Teachers</div>
+                  <div className="text-center p-3 sm:p-4 border rounded">
+                    <div className="text-xl sm:text-2xl font-bold text-success">{stats.availableTeachers}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">Available</div>
                   </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-muted-foreground">
+                  <div className="text-center p-3 sm:p-4 border rounded">
+                    <div className="text-xl sm:text-2xl font-bold text-muted-foreground">
                       {stats.totalTeachers - stats.availableTeachers}
                     </div>
-                    <div className="text-sm text-muted-foreground">Pending Availability</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">Pending</div>
                   </div>
                 </div>
                 
