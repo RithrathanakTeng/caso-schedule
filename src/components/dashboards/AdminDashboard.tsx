@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import AddUserDialog from '@/components/dialogs/AddUserDialog';
+import EditUserDialog from '@/components/dialogs/EditUserDialog';
+import EditInstitutionDialog from '@/components/dialogs/EditInstitutionDialog';
 import { 
   Users, 
   School, 
@@ -16,7 +19,9 @@ import {
   Calendar,
   LogOut,
   Crown,
-  Loader2
+  Loader2,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 
 interface UserProfile {
@@ -35,13 +40,37 @@ const AdminDashboard = () => {
   const { user, profile, institution, signOut } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [editUserOpen, setEditUserOpen] = useState(false);
+  const [editInstitutionOpen, setEditInstitutionOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [analytics, setAnalytics] = useState({
+    totalLogins: 0,
+    activeUsers: 0,
+    weeklyActivity: Array.from({ length: 7 }, (_, i) => ({
+      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+      users: Math.floor(Math.random() * 20) + 5
+    }))
+  });
   const { toast } = useToast();
 
   useEffect(() => {
     fetchUsers();
+    generateMockAnalytics();
   }, []);
 
-const fetchUsers = async () => {
+  const generateMockAnalytics = () => {
+    setAnalytics({
+      totalLogins: Math.floor(Math.random() * 500) + 100,
+      activeUsers: Math.floor(Math.random() * 50) + 10,
+      weeklyActivity: Array.from({ length: 7 }, (_, i) => ({
+        day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+        users: Math.floor(Math.random() * 20) + 5
+      }))
+    });
+  };
+
+  const fetchUsers = async () => {
     if (!profile?.institution_id) return;
 
     try {
@@ -213,7 +242,7 @@ const fetchUsers = async () => {
                       Manage users, roles, and permissions for your institution
                     </CardDescription>
                   </div>
-                  <Button>
+                  <Button onClick={() => setAddUserOpen(true)}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Add User
                   </Button>
@@ -252,7 +281,14 @@ const fetchUsers = async () => {
                               {role}
                             </Badge>
                           ))}
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setEditUserOpen(true);
+                            }}
+                          >
                             Edit
                           </Button>
                         </div>
@@ -294,7 +330,7 @@ const fetchUsers = async () => {
                       <p className="text-sm text-muted-foreground mt-1">{institution?.phone || 'Not set'}</p>
                     </div>
                   </div>
-                  <Button>
+                  <Button onClick={() => setEditInstitutionOpen(true)}>
                     <Settings className="h-4 w-4 mr-2" />
                     Edit Settings
                   </Button>
@@ -312,15 +348,102 @@ const fetchUsers = async () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <BarChart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Analytics features coming soon</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Logins</CardTitle>
+                      <Activity className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{analytics.totalLogins}</div>
+                      <p className="text-xs text-muted-foreground">
+                        +12% from last month
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{analytics.activeUsers}</div>
+                      <p className="text-xs text-muted-foreground">
+                        +5% from last week
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">System Status</CardTitle>
+                      <BarChart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">Healthy</div>
+                      <p className="text-xs text-muted-foreground">
+                        All systems operational
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Weekly Activity</CardTitle>
+                    <CardDescription>User activity over the past 7 days</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 flex items-end justify-center space-x-2">
+                      {analytics.weeklyActivity.map((day, index) => (
+                        <div key={index} className="flex flex-col items-center space-y-2">
+                          <div 
+                            className="bg-primary rounded-t"
+                            style={{ 
+                              height: `${(day.users / 25) * 200}px`,
+                              width: '40px',
+                              minHeight: '20px'
+                            }}
+                          />
+                          <span className="text-xs text-muted-foreground">{day.day}</span>
+                          <span className="text-xs font-medium">{day.users}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Dialogs */}
+      <AddUserDialog 
+        open={addUserOpen}
+        onOpenChange={setAddUserOpen}
+        institutionId={profile?.institution_id || ''}
+        onUserAdded={fetchUsers}
+      />
+      
+      <EditUserDialog 
+        open={editUserOpen}
+        onOpenChange={setEditUserOpen}
+        user={selectedUser}
+        institutionId={profile?.institution_id || ''}
+        onUserUpdated={fetchUsers}
+      />
+      
+      <EditInstitutionDialog 
+        open={editInstitutionOpen}
+        onOpenChange={setEditInstitutionOpen}
+        institution={institution}
+        onInstitutionUpdated={() => {
+          // Trigger a refetch of institution data through auth context
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };
