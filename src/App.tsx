@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import PurchaseAdmin from "./pages/PurchaseAdmin";
 import AdminSetup from "./pages/AdminSetup";
+import DevAdminSetup from "./components/DevAdminSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/purchase-admin" element={<PurchaseAdmin />} />
             <Route path="/admin-setup" element={<AdminSetup />} />
+            <Route path="/dev-admin" element={<DevAdminSetup />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
