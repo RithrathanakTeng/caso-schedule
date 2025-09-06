@@ -30,6 +30,25 @@ serve(async (req) => {
       }
     );
 
+    // Check if user already exists
+    const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
+    const userExists = existingUser.users.find(user => user.email === email);
+
+    if (userExists) {
+      console.log(`User already exists: ${email}`);
+      return new Response(JSON.stringify({
+        success: true,
+        email,
+        password: "dev123456",
+        user_id: userExists.id,
+        institution: "Test Institution",
+        message: "User already exists - you can login with the existing credentials"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Create auth user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
