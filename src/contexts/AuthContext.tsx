@@ -78,20 +78,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const fetchUserData = async (userId: string) => {
+    if (isInitialized) {
+      console.log('⚠️ Already initialized, skipping fetchUserData');
+      return;
+    }
     console.log('🔍 Starting fetchUserData for userId:', userId);
     try {
       // Fetch profile
       console.log('📊 Fetching profile...');
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      const { data: profileData, error: profileError } = await Promise.race([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile query timeout')), 10000)
+        )
+      ]) as any;
 
       if (profileError) {
         console.error('❌ Error fetching profile:', profileError);
+        setLoading(false);
+        return;
+      }
+
+      if (!profileData) {
+        console.error('❌ No profile found for user');
         setLoading(false);
         return;
       }
@@ -121,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .from('institutions')
           .select('*')
           .eq('id', profileData.institution_id)
-          .single();
+          .maybeSingle();
 
         if (institutionError) {
           console.error('❌ Error fetching institution:', institutionError);
@@ -135,7 +151,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('💥 Error in fetchUserData:', error);
     } finally {
-      console.log('🏁 Setting loading to false');
+      console.log('🏁 Setting loading to false and marking as initialized');
+      setIsInitialized(true);
       setLoading(false);
     }
   };
