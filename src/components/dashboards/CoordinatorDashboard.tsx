@@ -184,42 +184,45 @@ const CoordinatorDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <div className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
-                <Settings className="h-6 w-6 text-primary-foreground" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-primary rounded-lg">
+                <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold">Coordinator Dashboard</h1>
-                <p className="text-sm text-muted-foreground">{institution?.name}</p>
+                <h1 className="text-lg sm:text-xl font-semibold">Coordinator Dashboard</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{institution?.name}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
                 </p>
                 <p className="text-xs text-muted-foreground">Coordinator</p>
               </div>
-              <Avatar>
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback>
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm" onClick={signOut}>
+              <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
+              </Button>
+              <Button variant="outline" size="sm" onClick={signOut} className="sm:hidden p-2">
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center">
@@ -274,16 +277,16 @@ const CoordinatorDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="schedules">Schedules</TabsTrigger>
-            <TabsTrigger value="teachers">Teachers</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="schedules" className="text-xs sm:text-sm">Schedules</TabsTrigger>
+            <TabsTrigger value="teachers" className="text-xs sm:text-sm">Teachers</TabsTrigger>
+            <TabsTrigger value="courses" className="text-xs sm:text-sm">Courses</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Schedules</CardTitle>
@@ -359,7 +362,7 @@ const CoordinatorDashboard = () => {
                       Create, edit, and manage academic timetables
                     </CardDescription>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <ScheduleDialog mode="ai" onScheduleCreated={fetchSchedules} />
                     <ScheduleDialog mode="manual" onScheduleCreated={fetchSchedules} />
                   </div>
@@ -414,7 +417,7 @@ const CoordinatorDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                   <div className="text-center p-4 border rounded">
                     <div className="text-2xl font-bold text-primary">{stats.totalTeachers}</div>
                     <div className="text-sm text-muted-foreground">Total Teachers</div>

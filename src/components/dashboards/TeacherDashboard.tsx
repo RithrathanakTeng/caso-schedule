@@ -68,19 +68,19 @@ const TeacherDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <div className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
-                <BookOpen className="h-6 w-6 text-primary-foreground" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-primary rounded-lg">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold">Teacher Dashboard</h1>
-                <p className="text-sm text-muted-foreground">{institution?.name}</p>
+                <h1 className="text-lg sm:text-xl font-semibold">Teacher Dashboard</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{institution?.name}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
                   {profile?.first_name_khmer && profile?.last_name_khmer && (
@@ -91,24 +91,27 @@ const TeacherDashboard = () => {
                 </p>
                 <p className="text-xs text-muted-foreground">Teacher</p>
               </div>
-              <Avatar>
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback>
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm" onClick={signOut}>
+              <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
+              </Button>
+              <Button variant="outline" size="sm" onClick={signOut} className="sm:hidden p-2">
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Quick Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Availability Status</CardTitle>
@@ -154,12 +157,12 @@ const TeacherDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="schedule" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="schedule">My Schedule</TabsTrigger>
-            <TabsTrigger value="availability">Availability</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+        <Tabs defaultValue="schedule" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="schedule" className="text-xs sm:text-sm">Schedule</TabsTrigger>
+            <TabsTrigger value="availability" className="text-xs sm:text-sm">Availability</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="schedule">

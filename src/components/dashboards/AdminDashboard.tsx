@@ -147,42 +147,45 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <div className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
-                <Crown className="h-6 w-6 text-primary-foreground" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-primary rounded-lg">
+                <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-                <p className="text-sm text-muted-foreground">{institution?.name}</p>
+                <h1 className="text-lg sm:text-xl font-semibold">Admin Dashboard</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{institution?.name}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
                 </p>
                 <p className="text-xs text-muted-foreground">Administrator</p>
               </div>
-              <Avatar>
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback>
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm" onClick={signOut}>
+              <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
+              </Button>
+              <Button variant="outline" size="sm" onClick={signOut} className="sm:hidden p-2">
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -225,11 +228,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="institution">Institution Settings</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="users" className="text-xs sm:text-sm">Users</TabsTrigger>
+            <TabsTrigger value="institution" className="text-xs sm:text-sm">Settings</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -242,9 +245,9 @@ const AdminDashboard = () => {
                       Manage users, roles, and permissions for your institution
                     </CardDescription>
                   </div>
-                  <Button onClick={() => setAddUserOpen(true)}>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add User
+                  <Button onClick={() => setAddUserOpen(true)} size="sm" className="sm:size-default">
+                    <UserPlus className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Add User</span>
                   </Button>
                 </div>
               </CardHeader>
@@ -254,33 +257,35 @@ const AdminDashboard = () => {
                     <Loader2 className="h-8 w-8 animate-spin" />
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {users.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <Avatar>
+                      <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg space-y-3 sm:space-y-0">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                             <AvatarFallback>
                               {user.first_name[0]}{user.last_name[0]}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <div className="font-medium">
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium text-sm sm:text-base">
                               {user.first_name} {user.last_name}
                               {user.first_name_khmer && user.last_name_khmer && (
-                                <span className="text-muted-foreground ml-2">
+                                <span className="text-muted-foreground ml-2 text-xs sm:text-sm block sm:inline">
                                   ({user.first_name_khmer} {user.last_name_khmer})
                                 </span>
                               )}
                             </div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground">{user.email}</div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {user.roles.map((role, index) => (
-                            <Badge key={index} className={getRoleColor(role)}>
-                              {role}
-                            </Badge>
-                          ))}
+                        <div className="flex items-center justify-between sm:justify-end space-x-2">
+                          <div className="flex flex-wrap gap-1 sm:gap-2">
+                            {user.roles.map((role, index) => (
+                              <Badge key={index} className={`${getRoleColor(role)} text-xs`}>
+                                {role}
+                              </Badge>
+                            ))}
+                          </div>
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -288,6 +293,7 @@ const AdminDashboard = () => {
                               setSelectedUser(user);
                               setEditUserOpen(true);
                             }}
+                            className="ml-2"
                           >
                             Edit
                           </Button>
@@ -310,7 +316,7 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Institution Name</label>
                       <p className="text-sm text-muted-foreground mt-1">{institution?.name}</p>
@@ -320,7 +326,7 @@ const AdminDashboard = () => {
                       <p className="text-sm text-muted-foreground mt-1">{institution?.name_khmer || 'Not set'}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Email</label>
                       <p className="text-sm text-muted-foreground mt-1">{institution?.email || 'Not set'}</p>
@@ -348,7 +354,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Logins</CardTitle>
