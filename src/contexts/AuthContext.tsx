@@ -89,16 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Fetch profile
       console.log('📊 Fetching profile...');
-      const { data: profileData, error: profileError } = await Promise.race([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', userId)
-          .maybeSingle(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile query timeout')), 10000)
-        )
-      ]) as any;
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
 
       if (profileError) {
         console.error('❌ Error fetching profile:', profileError);
