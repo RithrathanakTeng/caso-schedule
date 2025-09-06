@@ -164,6 +164,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔔 Auth state changed:', event, session?.user?.email);
+        
+        // Reset initialization flag when user changes
+        if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+          setIsInitialized(false);
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -174,6 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
           setUserRoles([]);
           setInstitution(null);
+          setIsInitialized(false);
           setLoading(false);
         }
       }
