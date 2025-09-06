@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      courses: {
+        Row: {
+          code: string | null
+          created_at: string
+          description: string | null
+          hours_per_week: number | null
+          id: string
+          institution_id: string
+          is_active: boolean | null
+          name: string
+          name_khmer: string | null
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          hours_per_week?: number | null
+          id?: string
+          institution_id: string
+          is_active?: boolean | null
+          name: string
+          name_khmer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          hours_per_week?: number | null
+          id?: string
+          institution_id?: string
+          is_active?: boolean | null
+          name?: string
+          name_khmer?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       institutions: {
         Row: {
           address: string | null
@@ -117,6 +156,232 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schedule_conflicts: {
+        Row: {
+          conflict_type: string
+          created_at: string
+          description: string
+          entry_ids: string[]
+          id: string
+          is_resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          schedule_id: string
+        }
+        Insert: {
+          conflict_type: string
+          created_at?: string
+          description: string
+          entry_ids: string[]
+          id?: string
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          schedule_id: string
+        }
+        Update: {
+          conflict_type?: string
+          created_at?: string
+          description?: string
+          entry_ids?: string[]
+          id?: string
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          schedule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_conflicts_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_entries: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          notes: string | null
+          room: string | null
+          schedule_id: string
+          start_time: string
+          subject_id: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          notes?: string | null
+          room?: string | null
+          schedule_id: string
+          start_time: string
+          subject_id: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          notes?: string | null
+          room?: string | null
+          schedule_id?: string
+          start_time?: string
+          subject_id?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_entries_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_entries_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedules: {
+        Row: {
+          created_at: string
+          generated_by: string | null
+          generation_method: string | null
+          id: string
+          institution_id: string
+          name: string
+          status: string | null
+          updated_at: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          generated_by?: string | null
+          generation_method?: string | null
+          id?: string
+          institution_id: string
+          name: string
+          status?: string | null
+          updated_at?: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Update: {
+          created_at?: string
+          generated_by?: string | null
+          generation_method?: string | null
+          id?: string
+          institution_id?: string
+          name?: string
+          status?: string | null
+          updated_at?: string
+          week_end_date?: string
+          week_start_date?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          code: string | null
+          course_id: string
+          created_at: string
+          hours_per_week: number | null
+          id: string
+          institution_id: string
+          is_active: boolean | null
+          name: string
+          name_khmer: string | null
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          course_id: string
+          created_at?: string
+          hours_per_week?: number | null
+          id?: string
+          institution_id: string
+          is_active?: boolean | null
+          name: string
+          name_khmer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          course_id?: string
+          created_at?: string
+          hours_per_week?: number | null
+          id?: string
+          institution_id?: string
+          is_active?: boolean | null
+          name?: string
+          name_khmer?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          institution_id: string
+          is_available: boolean | null
+          notes: string | null
+          start_time: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          institution_id: string
+          is_available?: boolean | null
+          notes?: string | null
+          start_time: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          institution_id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          start_time?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
