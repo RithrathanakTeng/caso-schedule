@@ -80,8 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
+    console.log('🔍 Starting fetchUserData for userId:', userId);
     try {
       // Fetch profile
+      console.log('📊 Fetching profile...');
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -89,28 +91,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (profileError) {
-        console.error('Error fetching profile:', profileError);
+        console.error('❌ Error fetching profile:', profileError);
         setLoading(false);
         return;
       }
 
+      console.log('✅ Profile fetched successfully:', profileData);
       setProfile(profileData);
 
       // Fetch user roles
+      console.log('👥 Fetching user roles...');
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('*')
         .eq('user_id', userId);
 
       if (rolesError) {
-        console.error('Error fetching roles:', rolesError);
+        console.error('❌ Error fetching roles:', rolesError);
         setUserRoles([]);
       } else {
+        console.log('✅ Roles fetched successfully:', rolesData);
         setUserRoles(rolesData || []);
       }
 
       // Fetch institution
       if (profileData?.institution_id) {
+        console.log('🏫 Fetching institution for ID:', profileData.institution_id);
         const { data: institutionData, error: institutionError } = await supabase
           .from('institutions')
           .select('*')
@@ -118,28 +124,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
 
         if (institutionError) {
-          console.error('Error fetching institution:', institutionError);
+          console.error('❌ Error fetching institution:', institutionError);
         } else {
+          console.log('✅ Institution fetched successfully:', institutionData);
           setInstitution(institutionData);
         }
+      } else {
+        console.log('⚠️ No institution_id found in profile');
       }
     } catch (error) {
-      console.error('Error in fetchUserData:', error);
+      console.error('💥 Error in fetchUserData:', error);
     } finally {
+      console.log('🏁 Setting loading to false');
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('🚀 Setting up auth state listener...');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔔 Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           await fetchUserData(session.user.id);
         } else {
+          console.log('❌ No session, clearing data');
           setProfile(null);
           setUserRoles([]);
           setInstitution(null);
@@ -149,13 +163,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Get initial session
+    console.log('🔍 Getting initial session...');
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('📦 Initial session:', session?.user?.email || 'No session');
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
         fetchUserData(session.user.id);
       } else {
+        console.log('⏹️ No initial session, setting loading to false');
         setLoading(false);
       }
     });
