@@ -158,6 +158,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_dev_admin: {
+        Args: { dev_email: string; dev_password?: string }
+        Returns: Json
+      }
       get_user_institution_id: {
         Args: { user_uuid: string }
         Returns: string
