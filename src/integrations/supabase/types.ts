@@ -101,6 +101,100 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          institution_id: string
+          is_read: boolean | null
+          message: string
+          message_khmer: string | null
+          title: string
+          title_khmer: string | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          institution_id: string
+          is_read?: boolean | null
+          message: string
+          message_khmer?: string | null
+          title: string
+          title_khmer?: string | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          institution_id?: string
+          is_read?: boolean | null
+          message?: string
+          message_khmer?: string | null
+          title?: string
+          title_khmer?: string | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_status: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          institution_id: string
+          payment_date: string | null
+          stripe_customer_id: string | null
+          subscription_active: boolean | null
+          subscription_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          institution_id: string
+          payment_date?: string | null
+          stripe_customer_id?: string | null
+          subscription_active?: boolean | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          institution_id?: string
+          payment_date?: string | null
+          stripe_customer_id?: string | null
+          subscription_active?: boolean | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_status_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -426,6 +520,14 @@ export type Database = {
       create_dev_admin: {
         Args: { dev_email: string; dev_password?: string }
         Returns: Json
+      }
+      detect_schedule_conflicts: {
+        Args: { schedule_id_param: string }
+        Returns: {
+          conflict_type: string
+          description: string
+          entry_ids: string[]
+        }[]
       }
       get_user_institution_id: {
         Args: { user_uuid: string }
