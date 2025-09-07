@@ -83,17 +83,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUserData = async (userId: string) => {
     console.log('🔍 Starting fetchUserData for userId:', userId);
     try {
-      // Fetch profile
+      // Fetch profile with timeout
       console.log('📊 Fetching profile...');
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 10000)
+      );
+      
       const profilePromise = supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 
-      console.log('⏱️ Waiting for profile query...');
-      const { data: profileData, error: profileError } = await profilePromise;
-      console.log('📊 Profile query completed:', { profileData: !!profileData, error: !!profileError });
+      console.log('⏱️ Waiting for profile query with timeout...');
+      const { data: profileData, error: profileError } = await Promise.race([
+        profilePromise,
+        timeoutPromise
+      ]) as any;
+      console.log('📊 Profile query completed:', { profileData: !!profileData, error: !!profileError, actualData: profileData });
 
       if (profileError) {
         console.error('❌ Error fetching profile:', profileError);
