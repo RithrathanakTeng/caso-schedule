@@ -7,7 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { validateRoleAssignment, sanitizeInput } from '@/utils/security';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserProfile {
   id: string;
@@ -31,6 +34,7 @@ interface EditUserDialogProps {
 
 const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated }: EditUserDialogProps) => {
   const [loading, setLoading] = useState(false);
+  const [roleValidationErrors, setRoleValidationErrors] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -40,6 +44,7 @@ const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated
     roles: user?.roles || []
   });
   const { toast } = useToast();
+  const { userRoles } = useAuth();
 
   React.useEffect(() => {
     if (user) {
@@ -55,11 +60,18 @@ const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated
   }, [user]);
 
   const handleRoleChange = (role: 'admin' | 'coordinator' | 'teacher', checked: boolean) => {
+    const newRoles = checked 
+      ? [...formData.roles, role]
+      : formData.roles.filter(r => r !== role);
+    
+    // Validate role assignment
+    const currentUserRoleStrings = userRoles.map(r => r.role);
+    const validation = validateRoleAssignment(currentUserRoleStrings, newRoles, institutionId);
+    
+    setRoleValidationErrors(validation.errors);
     setFormData(prev => ({
       ...prev,
-      roles: checked 
-        ? [...prev.roles, role]
-        : prev.roles.filter(r => r !== role)
+      roles: newRoles
     }));
   };
 
@@ -76,16 +88,29 @@ const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated
 
     setLoading(true);
     try {
+      // Validate role assignment before proceeding
+      if (roleValidationErrors.length > 0) {
+        toast({
+          title: "Role Assignment Error",
+          description: roleValidationErrors.join(', '),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Sanitize inputs before database update
+      const sanitizedData = {
+        first_name: sanitizeInput(formData.first_name),
+        last_name: sanitizeInput(formData.last_name),
+        first_name_khmer: formData.first_name_khmer ? sanitizeInput(formData.first_name_khmer) : null,
+        last_name_khmer: formData.last_name_khmer ? sanitizeInput(formData.last_name_khmer) : null,
+        is_active: formData.is_active
+      };
+
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          first_name_khmer: formData.first_name_khmer || null,
-          last_name_khmer: formData.last_name_khmer || null,
-          is_active: formData.is_active
-        })
+        .update(sanitizedData)
         .eq('user_id', user.user_id);
 
       if (profileError) throw profileError;
@@ -194,6 +219,14 @@ const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated
 
           <div>
             <Label>Roles</Label>
+            {roleValidationErrors.length > 0 && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  {roleValidationErrors.join(', ')}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2 mt-2">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -231,7 +264,7 @@ const EditUserDialog = ({ open, onOpenChange, user, institutionId, onUserUpdated
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || roleValidationErrors.length > 0}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

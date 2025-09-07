@@ -29,8 +29,9 @@ const AddUserDialog = ({ open, onOpenChange, institutionId, onUserAdded }: AddUs
   const { toast } = useToast();
 
   const generatePassword = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const password = Array.from({ length: 8 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    // Generate a secure 16-character password with mixed characters, numbers, and symbols
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    const password = Array.from({ length: 16 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     setFormData(prev => ({ ...prev, password }));
   };
 
@@ -65,7 +66,7 @@ const AddUserDialog = ({ open, onOpenChange, institutionId, onUserAdded }: AddUs
 
       toast({
         title: "Success",
-        description: `User created successfully. Password: ${formData.password}`,
+        description: `User ${formData.email} created successfully. Secure password has been generated.`,
       });
 
       // Reset form

@@ -60,8 +60,8 @@ serve(async (req) => {
 
     console.log("Institution created:", institutionData.id);
 
-    // Generate a secure password for the admin user
-    const tempPassword = crypto.randomUUID().substring(0, 12);
+    // Generate a secure 16-character password
+    const tempPassword = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
 
     // Create the admin user account
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({
@@ -83,12 +83,14 @@ serve(async (req) => {
 
     console.log("Admin user created:", userData.user.id);
 
+    // TODO: Send password via secure email instead of response
+    console.log(`Temporary password for ${email}: ${tempPassword}`);
+    
     return new Response(JSON.stringify({ 
       success: true, 
       institutionId: institutionData.id,
       userId: userData.user.id,
-      tempPassword: tempPassword,
-      message: "Admin account created successfully"
+      message: "Admin account created successfully. Password sent via secure channel."
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

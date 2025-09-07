@@ -39,7 +39,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         email,
-        password: "dev123456",
+        password: "[Password securely generated]",
         user_id: userExists.id,
         institution: "Test Institution",
         message: "User already exists - you can login with the existing credentials"
@@ -52,7 +52,7 @@ serve(async (req) => {
     // Create auth user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: "dev123456",
+      password: crypto.randomUUID().replace(/-/g, '').substring(0, 16),
       email_confirm: true,
       user_metadata: {
         first_name: "Developer",
@@ -72,7 +72,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       email,
-      password: "dev123456",
+      password: "[Password securely generated]",
       user_id: authData.user.id,
       institution: "Test Institution"
     }), {
