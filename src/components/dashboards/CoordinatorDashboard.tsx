@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/forms/AddCourseDialog';
 import AvailabilityDialog from '@/components/forms/AvailabilityDialog';
 import ScheduleDialog from '@/components/forms/ScheduleDialog';
+import EditScheduleDialog from '@/components/forms/EditScheduleDialog';
 import { 
   Calendar, 
   Clock, 
@@ -177,6 +178,31 @@ const CoordinatorDashboard = () => {
       toast({
         title: 'Error',
         description: 'Failed to resolve conflict',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const publishSchedule = async (scheduleId: string) => {
+    try {
+      const { error } = await supabase
+        .from('schedules')
+        .update({ status: 'published' })
+        .eq('id', scheduleId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Schedule published successfully'
+      });
+
+      fetchSchedules();
+    } catch (error) {
+      console.error('Error publishing schedule:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to publish schedule',
         variant: 'destructive'
       });
     }
@@ -401,9 +427,15 @@ const CoordinatorDashboard = () => {
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 sm:gap-0">
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">Edit</Button>
+                        <EditScheduleDialog schedule={schedule} onScheduleUpdated={fetchSchedules} />
                         {schedule.status === 'draft' && (
-                          <Button size="sm" className="w-full sm:w-auto">Publish</Button>
+                          <Button 
+                            size="sm" 
+                            className="w-full sm:w-auto"
+                            onClick={() => publishSchedule(schedule.id)}
+                          >
+                            Publish
+                          </Button>
                         )}
                       </div>
                     </div>
