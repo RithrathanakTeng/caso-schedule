@@ -97,12 +97,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileError) {
         console.error('❌ Error fetching profile:', profileError);
+        console.error('❌ Profile error details:', JSON.stringify(profileError, null, 2));
         setLoading(false);
         return;
       }
 
       if (!profileData) {
-        console.error('❌ No profile found for user');
+        console.error('❌ No profile found for user ID:', userId);
+        console.log('🔍 Checking if user exists in profiles table...');
+        
+        // Try to fetch any profile to see if table is accessible
+        const { data: anyProfile, error: testError } = await supabase
+          .from('profiles')
+          .select('user_id, email')
+          .limit(1);
+        
+        console.log('🧪 Test query result:', { anyProfile, testError });
         setLoading(false);
         return;
       }
