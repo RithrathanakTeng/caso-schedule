@@ -53,6 +53,47 @@ export type Database = {
         }
         Relationships: []
       }
+      grade_levels: {
+        Row: {
+          created_at: string | null
+          grade_number: number
+          id: string
+          institution_id: string
+          is_active: boolean | null
+          name: string
+          name_khmer: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          grade_number: number
+          id?: string
+          institution_id: string
+          is_active?: boolean | null
+          name: string
+          name_khmer?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          grade_number?: number
+          id?: string
+          institution_id?: string
+          is_active?: boolean | null
+          name?: string
+          name_khmer?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_levels_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutions: {
         Row: {
           address: string | null
@@ -60,6 +101,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          institution_type: string | null
           is_active: boolean | null
           logo_url: string | null
           name: string
@@ -75,6 +117,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          institution_type?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name: string
@@ -90,6 +133,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          institution_type?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name?: string
@@ -396,36 +440,45 @@ export type Database = {
           code: string | null
           course_id: string
           created_at: string
+          grade_level_id: string | null
           hours_per_week: number | null
           id: string
           institution_id: string
           is_active: boolean | null
+          is_elective: boolean | null
           name: string
           name_khmer: string | null
+          subject_type: string | null
           updated_at: string
         }
         Insert: {
           code?: string | null
           course_id: string
           created_at?: string
+          grade_level_id?: string | null
           hours_per_week?: number | null
           id?: string
           institution_id: string
           is_active?: boolean | null
+          is_elective?: boolean | null
           name: string
           name_khmer?: string | null
+          subject_type?: string | null
           updated_at?: string
         }
         Update: {
           code?: string | null
           course_id?: string
           created_at?: string
+          grade_level_id?: string | null
           hours_per_week?: number | null
           id?: string
           institution_id?: string
           is_active?: boolean | null
+          is_elective?: boolean | null
           name?: string
           name_khmer?: string | null
+          subject_type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -434,6 +487,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subjects_grade_level_id_fkey"
+            columns: ["grade_level_id"]
+            isOneToOne: false
+            referencedRelation: "grade_levels"
             referencedColumns: ["id"]
           },
         ]
