@@ -24,6 +24,8 @@ import NotificationSystem from '@/components/NotificationSystem';
 import LanguageToggle from '@/components/LanguageToggle';
 
 const TeacherDashboard = () => {
+  console.log('🎯 TeacherDashboard: Component rendering');
+  
   const { user, profile, institution, signOut } = useAuth();
   const [stats, setStats] = useState({
     weeklyClasses: 0,
@@ -31,19 +33,45 @@ const TeacherDashboard = () => {
     notifications: 0
   });
 
+  console.log('📋 TeacherDashboard: Current state:', { 
+    hasUser: !!user, 
+    userEmail: user?.email,
+    hasProfile: !!profile, 
+    hasInstitution: !!institution,
+    stats 
+  });
+
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user || !profile?.institution_id) return;
+      console.log('🔄 TeacherDashboard: Starting to fetch stats', { user: user?.email, profile: !!profile });
+      
+      if (!user || !profile?.institution_id) {
+        console.log('⚠️ TeacherDashboard: Missing user or profile institution_id', { 
+          hasUser: !!user, 
+          hasProfile: !!profile, 
+          hasInstitutionId: !!profile?.institution_id 
+        });
+        return;
+      }
 
       try {
+        console.log('📊 TeacherDashboard: Fetching schedule entries...');
+        
         // Get weekly classes count
         const { data: scheduleEntries, error: scheduleError } = await supabase
           .from('schedule_entries')
           .select('id')
           .eq('teacher_id', user.id);
 
-        if (scheduleError) throw scheduleError;
+        if (scheduleError) {
+          console.error('❌ TeacherDashboard: Schedule entries error:', scheduleError);
+          throw scheduleError;
+        }
 
+        console.log('✅ TeacherDashboard: Schedule entries fetched:', scheduleEntries?.length);
+
+        console.log('📅 TeacherDashboard: Fetching availability...');
+        
         // Get availability status
         const { data: availability, error: availabilityError } = await supabase
           .from('teacher_availability')
@@ -51,15 +79,25 @@ const TeacherDashboard = () => {
           .eq('teacher_id', user.id)
           .limit(1);
 
-        if (availabilityError) throw availabilityError;
+        if (availabilityError) {
+          console.error('❌ TeacherDashboard: Availability error:', availabilityError);
+          throw availabilityError;
+        }
 
-        setStats({
+        console.log('✅ TeacherDashboard: Availability fetched:', availability?.length);
+
+        const newStats = {
           weeklyClasses: scheduleEntries?.length || 0,
           availabilityUpdated: availability && availability.length > 0,
           notifications: 2 // Mock notifications count
-        });
+        };
+
+        console.log('📈 TeacherDashboard: Setting stats:', newStats);
+        setStats(newStats);
+        
+        console.log('✅ TeacherDashboard: Stats fetch completed successfully');
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('❌ TeacherDashboard: Error fetching stats:', error);
       }
     };
 
