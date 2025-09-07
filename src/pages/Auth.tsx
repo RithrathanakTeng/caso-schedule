@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, School, Users, GraduationCap, Crown } from 'lucide-react';
+import { Loader2, School, Users, GraduationCap, Crown, Play } from 'lucide-react';
 
 interface Institution {
   id: string;
@@ -21,6 +21,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [selectedInstitution, setSelectedInstitution] = useState<string>('');
+  const [showDemoRequest, setShowDemoRequest] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -134,6 +135,28 @@ const Auth = () => {
     setLoading(false);
   };
 
+  const handleDemoRequest = async (name: string, email: string, institution: string, message?: string) => {
+    setLoading(true);
+    
+    try {
+      // Here you would typically send the demo request to your backend
+      // For now, we'll just show a success message
+      toast({
+        title: "Demo Request Submitted",
+        description: "We'll contact you within 24 hours to schedule your demo",
+      });
+      setShowDemoRequest(false);
+    } catch (error) {
+      toast({
+        title: "Request Failed",
+        description: "Failed to submit demo request. Please try again.",
+        variant: "destructive",
+      });
+    }
+    
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <Card className="w-full max-w-md">
@@ -168,20 +191,42 @@ const Auth = () => {
             </Select>
           </div>
 
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <SignInForm onSubmit={handleSignIn} loading={loading} />
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <SignUpForm onSubmit={handleSignUp} loading={loading} />
-            </TabsContent>
-          </Tabs>
+          {!showDemoRequest ? (
+            <>
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="signin">
+                  <SignInForm onSubmit={handleSignIn} loading={loading} />
+                </TabsContent>
+                
+                <TabsContent value="signup">
+                  <SignUpForm onSubmit={handleSignUp} loading={loading} />
+                </TabsContent>
+              </Tabs>
+
+              {/* Request Demo Button */}
+              <div className="mt-4">
+                <Button 
+                  variant="secondary" 
+                  className="w-full"
+                  onClick={() => setShowDemoRequest(true)}
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Request Demo
+                </Button>
+              </div>
+            </>
+          ) : (
+            <DemoRequestForm 
+              onSubmit={handleDemoRequest} 
+              onCancel={() => setShowDemoRequest(false)}
+              loading={loading} 
+            />
+          )}
 
           {/* Purchase Admin Access */}
           <div className="mt-6 pt-6 border-t border-border">
@@ -345,6 +390,94 @@ const SignUpForm = ({ onSubmit, loading }: { onSubmit: (email: string, password:
         Sign Up
       </Button>
     </form>
+  );
+};
+
+const DemoRequestForm = ({ 
+  onSubmit, 
+  onCancel, 
+  loading 
+}: { 
+  onSubmit: (name: string, email: string, institution: string, message?: string) => void; 
+  onCancel: () => void;
+  loading: boolean 
+}) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [institution, setInstitution] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(name, email, institution, message);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold">Request a Demo</h3>
+        <p className="text-sm text-muted-foreground">
+          See how Caso Schedule Pro can transform your academic scheduling
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="demo-name">Full Name</Label>
+          <Input
+            id="demo-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="demo-email">Email</Label>
+          <Input
+            id="demo-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="demo-institution">Institution Name</Label>
+          <Input
+            id="demo-institution"
+            type="text"
+            value={institution}
+            onChange={(e) => setInstitution(e.target.value)}
+            placeholder="Your school or university name"
+            required
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="demo-message">Message (Optional)</Label>
+          <Input
+            id="demo-message"
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Tell us about your scheduling needs"
+          />
+        </div>
+        
+        <div className="flex space-x-2">
+          <Button type="submit" className="flex-1" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Submit Request
+          </Button>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
