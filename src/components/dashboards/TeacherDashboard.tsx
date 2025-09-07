@@ -20,6 +20,7 @@ import TeacherScheduleView from '@/components/teacher/TeacherScheduleView';
 import TeacherAvailability from '@/components/teacher/TeacherAvailability';
 import TeacherNotifications from '@/components/teacher/TeacherNotifications';
 import TeacherProfile from '@/components/teacher/TeacherProfile';
+import NotificationSystem from '@/components/NotificationSystem';
 
 const TeacherDashboard = () => {
   const { user, profile, institution, signOut } = useAuth();
@@ -174,7 +175,7 @@ const TeacherDashboard = () => {
           </TabsContent>
 
           <TabsContent value="notifications">
-            <TeacherNotifications />
+            <NotificationSystem />
           </TabsContent>
 
           <TabsContent value="profile">

@@ -23,6 +23,9 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
+import PaymentStatusDisplay from '@/components/PaymentStatusDisplay';
+import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
+import NotificationSystem from '@/components/NotificationSystem';
 
 interface UserProfile {
   id: string;
@@ -346,81 +349,93 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics & Reports</CardTitle>
-                <CardDescription>
-                  View usage statistics and generate reports
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Logins</CardTitle>
-                      <Activity className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{analytics.totalLogins}</div>
-                      <p className="text-xs text-muted-foreground">
-                        +12% from last month
-                      </p>
-                    </CardContent>
-                  </Card>
+            <div className="space-y-6">
+              {/* Payment Status Component */}
+              <PaymentStatusDisplay />
+              
+              {/* Analytics Cards */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Analytics & Reports</CardTitle>
+                  <CardDescription>
+                    View usage statistics and generate reports
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Logins</CardTitle>
+                        <Activity className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{analytics.totalLogins}</div>
+                        <p className="text-xs text-muted-foreground">
+                          +12% from last month
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{analytics.activeUsers}</div>
+                        <p className="text-xs text-muted-foreground">
+                          +5% from last week
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">System Status</CardTitle>
+                        <BarChart className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-green-600">Healthy</div>
+                        <p className="text-xs text-muted-foreground">
+                          All systems operational
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
 
                   <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <CardHeader>
+                      <CardTitle>Weekly Activity</CardTitle>
+                      <CardDescription>User activity over the past 7 days</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{analytics.activeUsers}</div>
-                      <p className="text-xs text-muted-foreground">
-                        +5% from last week
-                      </p>
+                      <div className="h-64 flex items-end justify-center space-x-2">
+                        {analytics.weeklyActivity.map((day, index) => (
+                          <div key={index} className="flex flex-col items-center space-y-2">
+                            <div 
+                              className="bg-primary rounded-t"
+                              style={{ 
+                                height: `${(day.users / 25) * 200}px`,
+                                width: '40px',
+                                minHeight: '20px'
+                              }}
+                            />
+                            <span className="text-xs text-muted-foreground">{day.day}</span>
+                            <span className="text-xs font-medium">{day.users}</span>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
+                </CardContent>
+              </Card>
 
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">System Status</CardTitle>
-                      <BarChart className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-green-600">Healthy</div>
-                      <p className="text-xs text-muted-foreground">
-                        All systems operational
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Weekly Activity</CardTitle>
-                    <CardDescription>User activity over the past 7 days</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 flex items-end justify-center space-x-2">
-                      {analytics.weeklyActivity.map((day, index) => (
-                        <div key={index} className="flex flex-col items-center space-y-2">
-                          <div 
-                            className="bg-primary rounded-t"
-                            style={{ 
-                              height: `${(day.users / 25) * 200}px`,
-                              width: '40px',
-                              minHeight: '20px'
-                            }}
-                          />
-                          <span className="text-xs text-muted-foreground">{day.day}</span>
-                          <span className="text-xs font-medium">{day.users}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
+              {/* Conflict Detection System */}
+              <ConflictDetectionSystem />
+              
+              {/* Notification System */}
+              <NotificationSystem showCreateForm={true} />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

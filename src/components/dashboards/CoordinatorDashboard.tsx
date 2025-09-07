@@ -24,6 +24,8 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
+import NotificationSystem from '@/components/NotificationSystem';
 
 const CoordinatorDashboard = () => {
   const { profile, institution, signOut } = useAuth();
@@ -281,20 +283,24 @@ const CoordinatorDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-4 h-auto p-1">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+          <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
               <span className="hidden sm:inline">Overview</span>
               <span className="sm:hidden">Home</span>
             </TabsTrigger>
-            <TabsTrigger value="schedules" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+            <TabsTrigger value="schedules" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
               <span className="hidden sm:inline">Schedules</span>
               <span className="sm:hidden">Sched</span>
             </TabsTrigger>
-            <TabsTrigger value="teachers" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+            <TabsTrigger value="teachers" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
               <span className="hidden sm:inline">Teachers</span>
               <span className="sm:hidden">Staff</span>
             </TabsTrigger>
-            <TabsTrigger value="courses" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Courses</TabsTrigger>
+            <TabsTrigger value="courses" className="text-xs sm:text-sm py-2 px-1 sm:px-3">Courses</TabsTrigger>
+            <TabsTrigger value="conflicts" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
+              <span className="hidden sm:inline">Conflicts</span>
+              <span className="sm:hidden">Issues</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -532,6 +538,16 @@ const CoordinatorDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="conflicts">
+            <div className="space-y-6">
+              {/* AI-Powered Conflict Detection */}
+              <ConflictDetectionSystem />
+              
+              {/* Notification System for Coordinators */}
+              <NotificationSystem showCreateForm={true} />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
