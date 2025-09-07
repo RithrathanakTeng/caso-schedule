@@ -8,9 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/forms/AddCourseDialog';
+import AddSubjectDialog from '@/components/forms/AddSubjectDialog';
 import AvailabilityDialog from '@/components/forms/AvailabilityDialog';
 import ScheduleDialog from '@/components/forms/ScheduleDialog';
 import EditScheduleDialog from '@/components/forms/EditScheduleDialog';
+import TeacherListView from '@/components/teacher/TeacherListView';
 import { 
   Calendar, 
   Clock, 
@@ -484,22 +486,7 @@ const CoordinatorDashboard = () => {
                   </div>
                 </div>
                 
-                {stats.totalTeachers === 0 ? (
-                  <div className="text-center py-12">
-                    <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Teachers Found</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Add teachers to your institution to manage their availability
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      Use the "Collect Availability" button to manage teacher schedules
-                    </p>
-                  </div>
-                )}
+                <TeacherListView />
               </CardContent>
             </Card>
           </TabsContent>
@@ -536,10 +523,11 @@ const CoordinatorDashboard = () => {
                             </span>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add Subject
-                        </Button>
+                        <AddSubjectDialog 
+                          courseId={course.id} 
+                          courseName={course.name}
+                          onSubjectAdded={fetchCourses}
+                        />
                       </div>
                       
                       {course.subjects && course.subjects.length > 0 && (
