@@ -21,6 +21,7 @@ import TeacherAvailability from '@/components/teacher/TeacherAvailability';
 import TeacherNotifications from '@/components/teacher/TeacherNotifications';
 import TeacherProfile from '@/components/teacher/TeacherProfile';
 import NotificationSystem from '@/components/NotificationSystem';
+import LanguageToggle from '@/components/LanguageToggle';
 
 const TeacherDashboard = () => {
   const { user, profile, institution, signOut } = useAuth();
@@ -81,6 +82,7 @@ const TeacherDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              <LanguageToggle variant="badge" size="sm" />
               <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
