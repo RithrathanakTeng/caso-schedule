@@ -81,10 +81,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isInitialized, setIsInitialized] = useState(false);
 
   const fetchUserData = async (userId: string) => {
-    if (isInitialized) {
-      console.log('⚠️ Already initialized, skipping fetchUserData');
-      return;
-    }
     console.log('🔍 Starting fetchUserData for userId:', userId);
     try {
       // Fetch profile
