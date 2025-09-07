@@ -37,6 +37,7 @@ interface Institution {
   logo_url?: string;
   settings: any;
   is_active: boolean;
+  institution_type?: 'high_school' | 'university';
 }
 
 interface AuthContextType {
@@ -145,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('❌ Error fetching institution:', institutionError);
         } else {
           console.log('✅ Institution fetched successfully:', institutionData);
-          setInstitution(institutionData);
+          setInstitution(institutionData as Institution);
         }
       } else {
         console.log('⚠️ No institution_id found in profile');

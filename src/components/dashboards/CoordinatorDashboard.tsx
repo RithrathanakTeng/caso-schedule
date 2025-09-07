@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/forms/AddCourseDialog';
 import AddSubjectDialog from '@/components/forms/AddSubjectDialog';
+import AddGradeLevelDialog from '@/components/forms/AddGradeLevelDialog';
 import AvailabilityDialog from '@/components/forms/AvailabilityDialog';
 import ScheduleDialog from '@/components/forms/ScheduleDialog';
 import EditScheduleDialog from '@/components/forms/EditScheduleDialog';
@@ -75,23 +76,48 @@ const CoordinatorDashboard = () => {
 
   const fetchCourses = async () => {
     try {
-      const { data, error } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          subjects (
-            id,
-            name,
-            hours_per_week
-          )
-        `)
-        .eq('institution_id', profile?.institution_id)
-        .eq('is_active', true);
+      if (institution?.institution_type === 'high_school') {
+        // Fetch grade levels for high school
+        const { data, error } = await supabase
+          .from('grade_levels')
+          .select(`
+            *,
+            subjects (
+              id,
+              name,
+              hours_per_week,
+              subject_type,
+              is_elective
+            )
+          `)
+          .eq('institution_id', profile?.institution_id)
+          .eq('is_active', true)
+          .order('grade_number');
 
-      if (error) throw error;
-      setCourses(data || []);
+        if (error) throw error;
+        setCourses(data || []);
+      } else {
+        // Fetch courses for university
+        const { data, error } = await supabase
+          .from('courses')
+          .select(`
+            *,
+            subjects (
+              id,
+              name,
+              hours_per_week,
+              subject_type,
+              is_elective
+            )
+          `)
+          .eq('institution_id', profile?.institution_id)
+          .eq('is_active', true);
+
+        if (error) throw error;
+        setCourses(data || []);
+      }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching courses/grade levels:', error);
     }
   };
 
@@ -524,8 +550,6 @@ const CoordinatorDashboard = () => {
                           </div>
                         </div>
                         <AddSubjectDialog 
-                          courseId={course.id} 
-                          courseName={course.name}
                           onSubjectAdded={fetchCourses}
                         />
                       </div>
