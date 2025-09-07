@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { 
   Shield, Calendar, Users, 
   ArrowRight, CheckCircle, Settings,
@@ -195,8 +196,10 @@ const UserRoles = () => {
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl mb-8 text-white/90">Set up your institution with proper role management</p>
-          <Button variant="accent" size="lg">
-            Get Admin Access <ArrowRight className="ml-2 w-5 h-5" />
+          <Button variant="accent" size="lg" asChild>
+            <Link to="/purchase-admin">
+              Get Admin Access <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </section>

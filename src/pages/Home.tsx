@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Brain, Calendar, Users, Zap, Shield, Globe, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-ai-scheduling.jpg";
 import aiAssistant from "@/assets/ai-assistant.jpg";
 import cambodianSchool from "@/assets/cambodian-school.jpg";
@@ -45,12 +46,17 @@ const Home = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4">
-              Request Demo
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button variant="hero" size="lg" className="text-lg px-8 py-4" asChild>
+              <Link to="/auth">
+                Request Demo
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20">
-              Watch Video
+            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <Link to="/ai-advantage">
+                Watch Video
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
 
@@ -203,9 +209,11 @@ const Home = () => {
                 </div>
               </div>
 
-              <Button variant="hero" size="lg">
-                See AI in Action
-                <ArrowRight className="ml-2 w-5 h-5" />
+              <Button variant="hero" size="lg" asChild>
+                <Link to="/ai-advantage">
+                  See AI in Action
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
               </Button>
             </div>
 
@@ -300,12 +308,17 @@ const Home = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="accent" size="lg" className="text-lg px-8 py-4">
-              Request Free Demo
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button variant="accent" size="lg" className="text-lg px-8 py-4" asChild>
+              <Link to="/auth">
+                Request Free Demo
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20">
-              Contact Sales
+            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <Link to="/contact">
+                Contact Sales
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
         </div>

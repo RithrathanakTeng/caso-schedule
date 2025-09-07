@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { 
   Brain, Calendar, Users, Zap, Shield, Globe, 
   CheckCircle, Clock, BarChart3, Settings, 
@@ -23,9 +24,11 @@ const Features = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Discover how our AI-powered scheduling platform transforms academic administration with intelligent automation and seamless user experience.
           </p>
-          <Button variant="hero" size="lg">
-            Try Demo
-            <ArrowRight className="ml-2 w-5 h-5" />
+          <Button variant="hero" size="lg" asChild>
+            <Link to="/auth">
+              Try Demo
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </section>
@@ -299,12 +302,17 @@ const Features = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="accent" size="lg" className="text-lg px-8 py-4">
-              Start Free Trial
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button variant="accent" size="lg" className="text-lg px-8 py-4" asChild>
+              <Link to="/auth">
+                Start Free Trial
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20">
-              Watch Demo
+            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <Link to="/ai-advantage">
+                Watch Demo
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
         </div>

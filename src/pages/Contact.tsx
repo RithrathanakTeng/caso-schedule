@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import { 
   Mail, Phone, MapPin, Clock, 
   Send, MessageCircle, Calendar,
@@ -49,6 +50,13 @@ const Contact = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleQuickAction = (action: string) => {
+    toast({
+      title: `${action} Requested`,
+      description: "We'll contact you shortly to arrange this.",
+    });
   };
 
   return (
@@ -128,17 +136,19 @@ const Contact = () => {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleQuickAction("Demo")}>
                   <Calendar className="w-4 h-4 mr-2" />
                   Schedule a Demo
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => handleQuickAction("Training")}>
                   <Users className="w-4 h-4 mr-2" />
                   Request Training
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Building className="w-4 h-4 mr-2" />
-                  Get Pricing
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/purchase-admin">
+                    <Building className="w-4 h-4 mr-2" />
+                    Get Pricing
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

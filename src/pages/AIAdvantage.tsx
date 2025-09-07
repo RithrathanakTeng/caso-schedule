@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { 
   Brain, Zap, Target, Clock, 
   ArrowRight, CheckCircle, BarChart3,
@@ -173,9 +174,11 @@ const AIAdvantage = () => {
             See how artificial intelligence can transform your scheduling process
           </p>
 
-          <Button variant="accent" size="lg" className="text-lg px-8 py-4">
-            Try AI Demo
-            <ArrowRight className="ml-2 w-5 h-5" />
+          <Button variant="accent" size="lg" className="text-lg px-8 py-4" asChild>
+            <Link to="/auth">
+              Try AI Demo
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </section>

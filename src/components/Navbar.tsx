@@ -82,8 +82,10 @@ const Navbar = () => {
                 {language === 'en' ? 'Sign In' : 'ចូល'}
               </Link>
             </Button>
-            <Button variant="hero" size="sm">
-              {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/auth">
+                {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+              </Link>
             </Button>
           </div>
 
@@ -139,8 +141,10 @@ const Navbar = () => {
                     {language === 'en' ? 'Sign In' : 'ចូល'}
                   </Link>
                 </Button>
-                <Button variant="hero" className="w-full">
-                  {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+                <Button variant="hero" className="w-full" asChild>
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+                  </Link>
                 </Button>
               </div>
             </div>

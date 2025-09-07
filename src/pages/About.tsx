@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { 
   Heart, Target, Users, Globe, 
   ArrowRight, CheckCircle, Star,
@@ -291,12 +292,17 @@ const About = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="accent" size="lg" className="text-lg px-8 py-4">
-              Request Demo
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button variant="accent" size="lg" className="text-lg px-8 py-4" asChild>
+              <Link to="/auth">
+                Request Demo
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20">
-              Contact Us
+            <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <Link to="/contact">
+                Contact Us
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
         </div>
