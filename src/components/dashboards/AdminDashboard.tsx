@@ -10,9 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import AddUserDialog from '@/components/dialogs/AddUserDialog';
 import EditUserDialog from '@/components/dialogs/EditUserDialog';
 import EditInstitutionDialog from '@/components/dialogs/EditInstitutionDialog';
-import AddCourseDialog from '@/components/forms/AddCourseDialog';
-import AddSubjectDialog from '@/components/forms/AddSubjectDialog';
-import AddGradeLevelDialog from '@/components/forms/AddGradeLevelDialog';
 import { 
   Users, 
   School, 
@@ -25,8 +22,6 @@ import {
   Loader2,
   TrendingUp,
   Activity,
-  BookOpen,
-  GraduationCap,
   Plus
 } from 'lucide-react';
 import PaymentStatusDisplay from '@/components/PaymentStatusDisplay';
@@ -49,8 +44,6 @@ const AdminDashboard = () => {
   const { user, profile, institution, signOut } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [gradeLevels, setGradeLevels] = useState<any[]>([]);
   const [addUserOpen, setAddUserOpen] = useState(false);
   const [editUserOpen, setEditUserOpen] = useState(false);
   const [editInstitutionOpen, setEditInstitutionOpen] = useState(false);
@@ -68,8 +61,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchUsers();
     generateMockAnalytics();
-    fetchCourses();
-    fetchGradeLevels();
   }, []);
 
   const generateMockAnalytics = () => {
@@ -154,49 +145,6 @@ const AdminDashboard = () => {
     return { totalUsers, admins, coordinators, teachers };
   };
 
-  const fetchCourses = async () => {
-    if (!profile?.institution_id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*, subjects(id, name, hours_per_week, subject_type, is_elective)')
-        .eq('institution_id', profile.institution_id)
-        .eq('is_active', true);
-
-      if (error) {
-        console.error('Error fetching courses:', error);
-        return;
-      }
-
-      setCourses(data || []);
-    } catch (error) {
-      console.error('Error in fetchCourses:', error);
-    }
-  };
-
-  const fetchGradeLevels = async () => {
-    if (!profile?.institution_id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('grade_levels')
-        .select('*, subjects(id, name, hours_per_week, subject_type, is_elective)')
-        .eq('institution_id', profile.institution_id)
-        .order('grade_number');
-
-      if (error) {
-        console.error('Error fetching grade levels:', error);
-        return;
-      }
-
-      setGradeLevels(data || []);
-    } catch (error) {
-      console.error('Error in fetchGradeLevels:', error);
-    }
-  };
-
-  const isHighSchool = institution?.institution_type === 'high_school';
 
   const stats = getStats();
 
@@ -286,11 +234,8 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users" className="text-xs sm:text-sm">Users</TabsTrigger>
-            <TabsTrigger value="courses" className="text-xs sm:text-sm">
-              {isHighSchool ? 'Grade Levels' : 'Courses'}
-            </TabsTrigger>
             <TabsTrigger value="institution" className="text-xs sm:text-sm">Settings</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           </TabsList>
@@ -366,140 +311,6 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="courses">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      {isHighSchool ? 'Grade Level Management' : 'Course Management'}
-                    </CardTitle>
-                    <CardDescription>
-                      {isHighSchool 
-                        ? 'Manage grade levels and their subjects for your high school'
-                        : 'Manage courses and their subjects for your university'
-                      }
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    {isHighSchool ? (
-                      <>
-                        <AddGradeLevelDialog onGradeLevelAdded={fetchGradeLevels} />
-                        <AddSubjectDialog onSubjectAdded={fetchGradeLevels} />
-                      </>
-                    ) : (
-                      <>
-                        <AddCourseDialog onCourseAdded={fetchCourses} />
-                        <AddSubjectDialog onSubjectAdded={fetchCourses} />
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isHighSchool ? (
-                  <div className="space-y-4">
-                    {gradeLevels.length === 0 ? (
-                      <div className="text-center py-8">
-                        <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No Grade Levels Yet</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Start by adding grade levels for your high school.
-                        </p>
-                        <AddGradeLevelDialog onGradeLevelAdded={fetchGradeLevels} />
-                      </div>
-                    ) : (
-                      gradeLevels.map((gradeLevel) => (
-                        <Card key={gradeLevel.id}>
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <CardTitle className="text-lg">Grade {gradeLevel.grade_number}</CardTitle>
-                                <CardDescription>
-                                  {gradeLevel.name} {gradeLevel.name_khmer && `(${gradeLevel.name_khmer})`}
-                                </CardDescription>
-                              </div>
-                              <Badge variant="secondary">
-                                {gradeLevel.subjects?.length || 0} subjects
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          {gradeLevel.subjects && gradeLevel.subjects.length > 0 && (
-                            <CardContent>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {gradeLevel.subjects.map((subject: any) => (
-                                  <div key={subject.id} className="flex items-center justify-between p-2 border rounded">
-                                    <div>
-                                      <span className="font-medium">{subject.name}</span>
-                                      <div className="text-xs text-muted-foreground">
-                                        {subject.hours_per_week}h/week • {subject.subject_type}
-                                        {subject.is_elective && ' • Elective'}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          )}
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {courses.length === 0 ? (
-                      <div className="text-center py-8">
-                        <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No Courses Yet</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Start by adding courses for your university.
-                        </p>
-                        <AddCourseDialog onCourseAdded={fetchCourses} />
-                      </div>
-                    ) : (
-                      courses.map((course) => (
-                        <Card key={course.id}>
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <CardTitle className="text-lg">{course.name}</CardTitle>
-                                <CardDescription>
-                                  {course.code} • {course.hours_per_week} hours/week
-                                  {course.name_khmer && (
-                                    <span className="block">{course.name_khmer}</span>
-                                  )}
-                                </CardDescription>
-                              </div>
-                              <Badge variant="secondary">
-                                {course.subjects?.length || 0} subjects
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          {course.subjects && course.subjects.length > 0 && (
-                            <CardContent>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {course.subjects.map((subject: any) => (
-                                  <div key={subject.id} className="flex items-center justify-between p-2 border rounded">
-                                    <div>
-                                      <span className="font-medium">{subject.name}</span>
-                                      <div className="text-xs text-muted-foreground">
-                                        {subject.hours_per_week}h/week • {subject.subject_type}
-                                        {subject.is_elective && ' • Elective'}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          )}
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="institution">
             <Card>
