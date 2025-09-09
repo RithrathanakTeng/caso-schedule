@@ -295,6 +295,42 @@ const CoordinatorDashboard = () => {
     }
   };
 
+  const deleteSchedule = async (scheduleId: string, scheduleName: string) => {
+    if (!confirm(`Are you sure you want to delete schedule "${scheduleName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      // First delete schedule entries
+      await supabase
+        .from('schedule_entries')
+        .delete()
+        .eq('schedule_id', scheduleId);
+
+      // Then delete the schedule
+      const { error } = await supabase
+        .from('schedules')
+        .delete()
+        .eq('id', scheduleId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `Schedule "${scheduleName}" deleted successfully`
+      });
+      
+      fetchSchedules(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting schedule:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to delete schedule",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
@@ -524,6 +560,14 @@ const CoordinatorDashboard = () => {
                             Publish
                           </Button>
                         )}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => deleteSchedule(schedule.id, schedule.name)}
+                          className="text-destructive hover:text-destructive w-full sm:w-auto"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   )) : (
