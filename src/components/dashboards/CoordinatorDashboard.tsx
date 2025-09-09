@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   Plus,
   CheckCircle,
-  XCircle
+  XCircle,
+  Trash2
 } from 'lucide-react';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
@@ -231,6 +232,64 @@ const CoordinatorDashboard = () => {
       toast({
         title: 'Error',
         description: 'Failed to publish schedule',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const deleteCourse = async (courseId: string, courseName: string) => {
+    if (!confirm(`Are you sure you want to delete "${courseName}"? This will also delete all subjects under this course.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from(institution?.institution_type === 'high_school' ? 'grade_levels' : 'courses')
+        .update({ is_active: false })
+        .eq('id', courseId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: `${institution?.institution_type === 'high_school' ? 'Grade level' : 'Course'} deleted successfully`
+      });
+
+      fetchCourses();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      toast({
+        title: 'Error',
+        description: `Failed to delete ${institution?.institution_type === 'high_school' ? 'grade level' : 'course'}`,
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const deleteSubject = async (subjectId: string, subjectName: string) => {
+    if (!confirm(`Are you sure you want to delete the subject "${subjectName}"?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('subjects')
+        .update({ is_active: false })
+        .eq('id', subjectId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Subject deleted successfully'
+      });
+
+      fetchCourses();
+    } catch (error) {
+      console.error('Error deleting subject:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete subject',
         variant: 'destructive'
       });
     }
@@ -549,21 +608,41 @@ const CoordinatorDashboard = () => {
                             </span>
                           </div>
                         </div>
-                        <AddSubjectDialog 
-                          onSubjectAdded={fetchCourses}
-                        />
+                        <div className="flex items-center space-x-2">
+                          <AddSubjectDialog 
+                            onSubjectAdded={fetchCourses}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteCourse(course.id, course.name)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       
                       {course.subjects && course.subjects.length > 0 && (
                         <div className="space-y-2">
                           <h5 className="text-sm font-medium text-muted-foreground">Subjects:</h5>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {course.subjects.map((subject: any) => (
-                              <div key={subject.id} className="p-2 bg-muted rounded text-sm">
-                                <div className="font-medium">{subject.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {subject.hours_per_week}h/week
+                              <div key={subject.id} className="p-2 bg-muted rounded text-sm flex justify-between items-start">
+                                <div className="flex-1">
+                                  <div className="font-medium">{subject.name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {subject.hours_per_week}h/week
+                                  </div>
                                 </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteSubject(subject.id, subject.name)}
+                                  className="text-destructive hover:text-destructive p-1 h-auto"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
                               </div>
                             ))}
                           </div>
