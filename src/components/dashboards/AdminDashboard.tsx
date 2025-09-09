@@ -22,11 +22,13 @@ import {
   Loader2,
   TrendingUp,
   Activity,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import PaymentStatusDisplay from '@/components/PaymentStatusDisplay';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface UserProfile {
   id: string;
@@ -48,6 +50,8 @@ const AdminDashboard = () => {
   const [editUserOpen, setEditUserOpen] = useState(false);
   const [editInstitutionOpen, setEditInstitutionOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
   const [analytics, setAnalytics] = useState({
     totalLogins: 0,
     activeUsers: 0,
@@ -145,6 +149,46 @@ const AdminDashboard = () => {
     return { totalUsers, admins, coordinators, teachers };
   };
 
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete || !profile?.institution_id) return;
+
+    try {
+      // First delete user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userToDelete.user_id)
+        .eq('institution_id', profile.institution_id);
+
+      if (rolesError) throw rolesError;
+
+      // Then delete the profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userToDelete.user_id)
+        .eq('institution_id', profile.institution_id);
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
 
   const stats = getStats();
 
@@ -291,17 +335,29 @@ const AdminDashboard = () => {
                               </Badge>
                             ))}
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setEditUserOpen(true);
-                            }}
-                            className="ml-2"
-                          >
-                            Edit
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setEditUserOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -468,6 +524,25 @@ const AdminDashboard = () => {
           window.location.reload();
         }}
       />
+
+      {/* Delete User Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {userToDelete?.first_name} {userToDelete?.last_name}? 
+              This action cannot be undone and will remove all their data from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90">
+              Delete User
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
