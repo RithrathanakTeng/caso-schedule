@@ -190,15 +190,19 @@ const AvailabilityDialog: React.FC = () => {
             <div>
               <Label htmlFor="teacher">Select Teacher</Label>
               <Select value={selectedTeacher} onValueChange={handleTeacherSelect}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choose a teacher" />
                 </SelectTrigger>
-                <SelectContent>
-                  {teachers.map(teacher => (
+                <SelectContent className="z-50 bg-background border shadow-lg">
+                  {teachers.length > 0 ? teachers.map(teacher => (
                     <SelectItem key={teacher.user_id} value={teacher.user_id}>
                       {teacher.first_name} {teacher.last_name}
                     </SelectItem>
-                  ))}
+                  )) : (
+                    <SelectItem value="" disabled>
+                      No teachers found
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
