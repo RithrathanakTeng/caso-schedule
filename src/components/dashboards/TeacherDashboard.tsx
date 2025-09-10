@@ -57,7 +57,7 @@ const TeacherDashboard = () => {
       try {
         console.log('📊 TeacherDashboard: Fetching schedule entries...');
         
-        // Get weekly classes count
+        // Get weekly classes count for current schedules
         const { data: scheduleEntries, error: scheduleError } = await supabase
           .from('schedule_entries')
           .select('id')
@@ -77,6 +77,7 @@ const TeacherDashboard = () => {
           .from('teacher_availability')
           .select('id')
           .eq('teacher_id', user.id)
+          .eq('institution_id', profile.institution_id)
           .limit(1);
 
         if (availabilityError) {
@@ -84,12 +85,25 @@ const TeacherDashboard = () => {
           throw availabilityError;
         }
 
+        console.log('📧 TeacherDashboard: Fetching notifications...');
+        
+        // Get real notifications count
+        const { data: notifications, error: notificationsError } = await supabase
+          .from('notifications')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('is_read', false);
+
+        if (notificationsError) {
+          console.error('❌ TeacherDashboard: Notifications error:', notificationsError);
+        }
+
         console.log('✅ TeacherDashboard: Availability fetched:', availability?.length);
 
         const newStats = {
           weeklyClasses: scheduleEntries?.length || 0,
           availabilityUpdated: availability && availability.length > 0,
-          notifications: 2 // Mock notifications count
+          notifications: notifications?.length || 0
         };
 
         console.log('📈 TeacherDashboard: Setting stats:', newStats);
