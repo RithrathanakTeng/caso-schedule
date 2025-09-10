@@ -46,21 +46,29 @@ const CoordinatorDashboard = () => {
 
   useEffect(() => {
     if (profile?.institution_id) {
+      console.log('🔄 CoordinatorDashboard: Starting data fetch for institution:', profile.institution_id);
       fetchData();
     }
   }, [profile?.institution_id]);
 
   const fetchData = async () => {
-    await Promise.all([
-      fetchSchedules(),
-      fetchCourses(),
-      fetchConflicts(),
-      fetchStats()
-    ]);
+    try {
+      console.log('📊 CoordinatorDashboard: Fetching all data...');
+      await Promise.all([
+        fetchSchedules(),
+        fetchCourses(),
+        fetchConflicts(),
+        fetchStats()
+      ]);
+      console.log('✅ CoordinatorDashboard: All data fetched successfully');
+    } catch (error) {
+      console.error('❌ CoordinatorDashboard: Error fetching data:', error);
+    }
   };
 
   const fetchSchedules = async () => {
     try {
+      console.log('📅 CoordinatorDashboard: Fetching schedules...');
       const { data, error } = await supabase
         .from('schedules')
         .select('*')
@@ -68,15 +76,23 @@ const CoordinatorDashboard = () => {
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ CoordinatorDashboard: Schedules error:', error);
+        throw error;
+      }
+      
+      console.log('✅ CoordinatorDashboard: Schedules fetched:', data?.length || 0);
       setSchedules(data || []);
     } catch (error) {
-      console.error('Error fetching schedules:', error);
+      console.error('❌ CoordinatorDashboard: Error fetching schedules:', error);
+      setSchedules([]);
     }
   };
 
   const fetchCourses = async () => {
     try {
+      console.log('📚 CoordinatorDashboard: Fetching courses/grade levels...');
+      
       if (institution?.institution_type === 'high_school') {
         // Fetch grade levels for high school
         const { data, error } = await supabase
@@ -95,7 +111,12 @@ const CoordinatorDashboard = () => {
           .eq('is_active', true)
           .order('grade_number');
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ CoordinatorDashboard: Grade levels error:', error);
+          throw error;
+        }
+        
+        console.log('✅ CoordinatorDashboard: Grade levels fetched:', data?.length || 0);
         setCourses(data || []);
       } else {
         // Fetch courses for university
@@ -114,16 +135,23 @@ const CoordinatorDashboard = () => {
           .eq('institution_id', profile?.institution_id)
           .eq('is_active', true);
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ CoordinatorDashboard: Courses error:', error);
+          throw error;
+        }
+        
+        console.log('✅ CoordinatorDashboard: Courses fetched:', data?.length || 0);
         setCourses(data || []);
       }
     } catch (error) {
-      console.error('Error fetching courses/grade levels:', error);
+      console.error('❌ CoordinatorDashboard: Error fetching courses/grade levels:', error);
+      setCourses([]);
     }
   };
 
   const fetchConflicts = async () => {
     try {
+      console.log('⚠️ CoordinatorDashboard: Fetching conflicts...');
       const { data, error } = await supabase
         .from('schedule_conflicts')
         .select(`
@@ -133,53 +161,87 @@ const CoordinatorDashboard = () => {
         .eq('is_resolved', false)
         .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ CoordinatorDashboard: Conflicts error:', error);
+        throw error;
+      }
+      
+      console.log('✅ CoordinatorDashboard: Conflicts fetched:', data?.length || 0);
       setConflicts(data || []);
     } catch (error) {
-      console.error('Error fetching conflicts:', error);
+      console.error('❌ CoordinatorDashboard: Error fetching conflicts:', error);
+      setConflicts([]);
     }
   };
 
   const fetchStats = async () => {
     try {
+      console.log('📊 CoordinatorDashboard: Fetching statistics...');
+      
       // Get teacher count
-      const { data: teacherRoles } = await supabase
+      const { data: teacherRoles, error: teacherError } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('institution_id', profile?.institution_id)
         .eq('role', 'teacher');
 
+      if (teacherError) {
+        console.error('❌ CoordinatorDashboard: Teacher roles error:', teacherError);
+      }
+
       // Get teachers with availability
-      const { data: availableTeachers } = await supabase
+      const { data: availableTeachers, error: availabilityError } = await supabase
         .from('teacher_availability')
         .select('teacher_id')
         .eq('institution_id', profile?.institution_id)
         .eq('is_available', true);
 
+      if (availabilityError) {
+        console.error('❌ CoordinatorDashboard: Availability error:', availabilityError);
+      }
+
       // Get course count
-      const { data: coursesCount } = await supabase
+      const { data: coursesCount, error: coursesError } = await supabase
         .from('courses')
         .select('id')
         .eq('institution_id', profile?.institution_id)
         .eq('is_active', true);
 
+      if (coursesError) {
+        console.error('❌ CoordinatorDashboard: Courses count error:', coursesError);
+      }
+
       // Get active schedules
-      const { data: activeSchedules } = await supabase
+      const { data: activeSchedules, error: schedulesError } = await supabase
         .from('schedules')
         .select('id')
         .eq('institution_id', profile?.institution_id)
         .eq('status', 'published');
 
+      if (schedulesError) {
+        console.error('❌ CoordinatorDashboard: Active schedules error:', schedulesError);
+      }
+
       const uniqueAvailableTeachers = [...new Set(availableTeachers?.map(t => t.teacher_id) || [])];
 
-      setStats({
+      const newStats = {
         totalTeachers: teacherRoles?.length || 0,
         availableTeachers: uniqueAvailableTeachers.length,
         totalCourses: coursesCount?.length || 0,
         activeSchedules: activeSchedules?.length || 0
-      });
+      };
+
+      console.log('📈 CoordinatorDashboard: Stats calculated:', newStats);
+      setStats(newStats);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('❌ CoordinatorDashboard: Error fetching stats:', error);
+      // Set fallback stats
+      setStats({
+        totalTeachers: 0,
+        availableTeachers: 0,
+        totalCourses: 0,
+        activeSchedules: 0
+      });
     }
   };
 
