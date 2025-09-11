@@ -28,6 +28,7 @@ import {
 import PaymentStatusDisplay from '@/components/PaymentStatusDisplay';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
+import GlobalNotificationBell from '@/components/GlobalNotificationBell';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface UserProfile {
@@ -237,6 +238,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              <GlobalNotificationBell />
               <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}

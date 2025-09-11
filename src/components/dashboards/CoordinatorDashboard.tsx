@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
+import GlobalNotificationBell from '@/components/GlobalNotificationBell';
 
 const CoordinatorDashboard = () => {
   const { profile, institution, signOut } = useAuth();
@@ -409,6 +410,7 @@ const CoordinatorDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <GlobalNotificationBell />
               <div className="text-right hidden lg:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}

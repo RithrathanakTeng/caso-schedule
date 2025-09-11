@@ -21,6 +21,7 @@ import TeacherAvailability from '@/components/teacher/TeacherAvailability';
 import TeacherNotifications from '@/components/teacher/TeacherNotifications';
 import TeacherProfile from '@/components/teacher/TeacherProfile';
 import NotificationSystem from '@/components/NotificationSystem';
+import GlobalNotificationBell from '@/components/GlobalNotificationBell';
 import LanguageToggle from '@/components/LanguageToggle';
 
 const TeacherDashboard = () => {
@@ -135,6 +136,7 @@ const TeacherDashboard = () => {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <LanguageToggle variant="badge" size="sm" />
+              <GlobalNotificationBell />
               <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
                   {profile?.first_name} {profile?.last_name}
