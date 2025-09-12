@@ -56,7 +56,8 @@ const GlobalNotificationBell = () => {
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('id', notificationId);
+        .eq('id', notificationId)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
@@ -71,6 +72,29 @@ const GlobalNotificationBell = () => {
       console.log('🔔 GlobalNotificationBell: Successfully marked as read');
     } catch (error) {
       console.error('🔔 GlobalNotificationBell: Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!user?.id || unreadCount === 0) return;
+    
+    console.log('🔔 GlobalNotificationBell: Marking all notifications as read');
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+      if (error) throw error;
+
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, is_read: true }))
+      );
+      setUnreadCount(0);
+      console.log('🔔 GlobalNotificationBell: Successfully marked all as read');
+    } catch (error) {
+      console.error('🔔 GlobalNotificationBell: Error marking all as read:', error);
     }
   };
 
@@ -178,12 +202,24 @@ const GlobalNotificationBell = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
-        <div className="space-y-3">
+          <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="font-medium">Notifications</h4>
-            {unreadCount > 0 && (
-              <Badge variant="secondary">{unreadCount} unread</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <>
+                  <Badge variant="secondary">{unreadCount} unread</Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    className="h-6 px-2 text-xs"
+                  >
+                    Mark all read
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="space-y-2 max-h-96 overflow-y-auto">

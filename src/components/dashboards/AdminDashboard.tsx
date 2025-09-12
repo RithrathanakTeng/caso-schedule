@@ -184,7 +184,28 @@ const AdminDashboard = () => {
     if (!userToDelete || !profile?.institution_id) return;
 
     try {
-      // First delete user roles
+      // Check if user trying to delete themselves
+      if (userToDelete.user_id === user?.id) {
+        toast({
+          title: "Error",
+          description: "You cannot delete your own account",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // First delete related data (notifications, teacher_availability, etc.)
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', userToDelete.user_id);
+
+      await supabase
+        .from('teacher_availability')
+        .delete()
+        .eq('teacher_id', userToDelete.user_id);
+
+      // Delete user roles
       const { error: rolesError } = await supabase
         .from('user_roles')
         .delete()
@@ -193,7 +214,7 @@ const AdminDashboard = () => {
 
       if (rolesError) throw rolesError;
 
-      // Then delete the profile
+      // Finally delete the profile
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -214,7 +235,7 @@ const AdminDashboard = () => {
       console.error('Error deleting user:', error);
       toast({
         title: "Error",
-        description: "Failed to delete user",
+        description: "Failed to delete user. Please try again.",
         variant: "destructive",
       });
     }
