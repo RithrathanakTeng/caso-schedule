@@ -42,6 +42,7 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({
     message_khmer: '',
     type: 'info' as const,
     target_user_id: targetUserId || '',
+    broadcast_to: 'individual' as 'individual' | 'all_teachers' | 'all_coordinators' | 'all_users',
     expires_at: ''
   });
 
@@ -121,27 +122,69 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({
       return;
     }
 
+    console.log('📧 NotificationSystem: Creating notification with broadcast type:', newNotification.broadcast_to);
+
     try {
-      const notificationData = {
+      let targetUsers: string[] = [];
+
+      // Determine target users based on broadcast type
+      if (newNotification.broadcast_to === 'individual') {
+        targetUsers = [newNotification.target_user_id || user?.id!];
+      } else {
+        // Get users based on broadcast type
+        let roleFilter: 'teacher' | 'coordinator' | 'admin' | null = null;
+        switch (newNotification.broadcast_to) {
+          case 'all_teachers':
+            roleFilter = 'teacher';
+            break;
+          case 'all_coordinators':
+            roleFilter = 'coordinator';
+            break;
+          case 'all_users':
+            roleFilter = null; // No filter - all users
+            break;
+        }
+
+        const query = supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('institution_id', profile.institution_id);
+
+        if (roleFilter) {
+          query.eq('role', roleFilter);
+        }
+
+        const { data: userRoles, error: rolesError } = await query;
+
+        if (rolesError) throw rolesError;
+
+        targetUsers = userRoles?.map(ur => ur.user_id) || [];
+        console.log('📧 NotificationSystem: Target users found:', targetUsers.length);
+      }
+
+      // Create notifications for all target users
+      const notificationsData = targetUsers.map(userId => ({
         institution_id: profile.institution_id,
-        user_id: newNotification.target_user_id || user?.id,
+        user_id: userId,
         title: newNotification.title,
         title_khmer: newNotification.title_khmer || null,
         message: newNotification.message,
         message_khmer: newNotification.message_khmer || null,
         type: newNotification.type,
         expires_at: newNotification.expires_at || null
-      };
+      }));
 
       const { error } = await supabase
         .from('notifications')
-        .insert(notificationData);
+        .insert(notificationsData);
 
       if (error) throw error;
 
+      console.log('📧 NotificationSystem: Successfully created', notificationsData.length, 'notifications');
+
       toast({
         title: 'Notification Created',
-        description: 'Notification has been sent successfully',
+        description: `Notification has been sent to ${targetUsers.length} user(s)`,
       });
 
       setNewNotification({
@@ -151,12 +194,13 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({
         message_khmer: '',
         type: 'info',
         target_user_id: targetUserId || '',
+        broadcast_to: 'individual',
         expires_at: ''
       });
       setShowForm(false);
       fetchNotifications();
     } catch (error) {
-      console.error('Error creating notification:', error);
+      console.error('📧 NotificationSystem: Error creating notification:', error);
       toast({
         title: 'Error',
         description: 'Failed to create notification',
@@ -316,7 +360,7 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium">Type</label>
                   <select
@@ -330,6 +374,21 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({
                     <option value="success">Success</option>
                     <option value="warning">Warning</option>
                     <option value="error">Error</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Send To</label>
+                  <select
+                    className="w-full mt-1 p-2 border rounded"
+                    value={newNotification.broadcast_to}
+                    onChange={(e) => setNewNotification(prev => ({
+                      ...prev, broadcast_to: e.target.value as any
+                    }))}
+                  >
+                    <option value="individual">Individual User</option>
+                    <option value="all_teachers">All Teachers</option>
+                    <option value="all_coordinators">All Coordinators</option>
+                    <option value="all_users">All Users</option>
                   </select>
                 </div>
                 <div>

@@ -23,7 +23,12 @@ const GlobalNotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchNotifications = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log('🔔 GlobalNotificationBell: No user ID for fetching notifications');
+      return;
+    }
+
+    console.log('🔔 GlobalNotificationBell: Fetching notifications for user:', user.id);
 
     try {
       const { data, error } = await supabase
@@ -35,14 +40,18 @@ const GlobalNotificationBell = () => {
 
       if (error) throw error;
 
+      console.log('🔔 GlobalNotificationBell: Fetched notifications:', data?.length || 0);
       setNotifications((data as Notification[]) || []);
-      setUnreadCount((data || []).filter(n => !n.is_read).length);
+      const unreadCountValue = (data || []).filter(n => !n.is_read).length;
+      setUnreadCount(unreadCountValue);
+      console.log('🔔 GlobalNotificationBell: Unread count:', unreadCountValue);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error('🔔 GlobalNotificationBell: Error fetching notifications:', error);
     }
   };
 
   const markAsRead = async (notificationId: string) => {
+    console.log('🔔 GlobalNotificationBell: Marking notification as read:', notificationId);
     try {
       const { error } = await supabase
         .from('notifications')
@@ -59,8 +68,9 @@ const GlobalNotificationBell = () => {
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
+      console.log('🔔 GlobalNotificationBell: Successfully marked as read');
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('🔔 GlobalNotificationBell: Error marking notification as read:', error);
     }
   };
 
@@ -79,7 +89,13 @@ const GlobalNotificationBell = () => {
   };
 
   useEffect(() => {
+    console.log('🔔 GlobalNotificationBell: Setting up real-time subscription for user:', user?.id);
     fetchNotifications();
+
+    if (!user?.id) {
+      console.log('⚠️ GlobalNotificationBell: No user ID, skipping subscription');
+      return;
+    }
 
     // Set up real-time subscription for new notifications
     const channel = supabase
@@ -93,6 +109,7 @@ const GlobalNotificationBell = () => {
           filter: `user_id=eq.${user?.id}`
         },
         (payload) => {
+          console.log('🔔 GlobalNotificationBell: New notification received:', payload);
           const newNotification = payload.new as Notification;
           
           // Show toast for new notification
@@ -105,11 +122,42 @@ const GlobalNotificationBell = () => {
           // Update state
           setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
           setUnreadCount(prev => prev + 1);
+          
+          console.log('🔔 GlobalNotificationBell: Updated notification count:', unreadCount + 1);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('🔔 GlobalNotificationBell: Notification updated:', payload);
+          const updatedNotification = payload.new as Notification;
+          
+          setNotifications(prev => 
+            prev.map(notif => 
+              notif.id === updatedNotification.id 
+                ? updatedNotification
+                : notif
+            )
+          );
+          
+          // Update unread count
+          if (updatedNotification.is_read) {
+            setUnreadCount(prev => Math.max(0, prev - 1));
+          }
         }
       )
       .subscribe();
 
+    console.log('🔔 GlobalNotificationBell: Subscription established');
+
     return () => {
+      console.log('🔔 GlobalNotificationBell: Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [user?.id, toast]);
