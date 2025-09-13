@@ -12,10 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    const { email } = await req.json();
+    const { email, institutionId } = await req.json();
     
     if (!email) {
       throw new Error("Email is required");
+    }
+
+    if (!institutionId) {
+      throw new Error("Institution ID is required");
     }
 
     // Use service role to create auth user and profiles
@@ -30,6 +34,17 @@ serve(async (req) => {
       }
     );
 
+    // Get institution details
+    const { data: institution, error: instError } = await supabaseAdmin
+      .from('institutions')
+      .select('name')
+      .eq('id', institutionId)
+      .single();
+
+    if (instError || !institution) {
+      throw new Error("Institution not found");
+    }
+
     // Check if user already exists
     const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
     const userExists = existingUser.users.find(user => user.email === email);
@@ -39,9 +54,9 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         email,
-        password: "[Password securely generated]",
+        password: "dev123456",
         user_id: userExists.id,
-        institution: "Test Institution",
+        institution: institution.name,
         message: "User already exists - you can login with the existing credentials"
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -49,15 +64,18 @@ serve(async (req) => {
       });
     }
 
+    // Generate a consistent password for dev purposes
+    const password = "dev123456";
+
     // Create auth user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: crypto.randomUUID().replace(/-/g, '').substring(0, 16),
+      password,
       email_confirm: true,
       user_metadata: {
         first_name: "Developer",
         last_name: "Admin",
-        institution_id: "00000000-0000-0000-0000-000000000001",
+        institution_id: institutionId,
         role: "admin"
       }
     });
@@ -72,9 +90,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       email,
-      password: "[Password securely generated]",
+      password,
       user_id: authData.user.id,
-      institution: "Test Institution"
+      institution: institution.name
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

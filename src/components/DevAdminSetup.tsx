@@ -15,13 +15,53 @@ interface DevCredentials {
   institution: string;
 }
 
+interface Institution {
+  id: string;
+  name: string;
+  name_khmer?: string;
+}
+
 const DevAdminSetup = () => {
   const [loading, setLoading] = useState(false);
+  const [institutionsLoading, setInstitutionsLoading] = useState(true);
   const [email, setEmail] = useState('dev@admin.com');
+  const [selectedInstitution, setSelectedInstitution] = useState<string>('');
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [credentials, setCredentials] = useState<DevCredentials | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Fetch institutions on component mount
+  React.useEffect(() => {
+    const fetchInstitutions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('institutions')
+          .select('id, name, name_khmer')
+          .eq('is_active', true)
+          .order('name');
+
+        if (error) throw error;
+        
+        setInstitutions(data || []);
+        if (data && data.length > 0) {
+          setSelectedInstitution(data[0].id);
+        }
+      } catch (error) {
+        console.error('Error fetching institutions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load institutions",
+          variant: "destructive",
+        });
+      } finally {
+        setInstitutionsLoading(false);
+      }
+    };
+
+    fetchInstitutions();
+  }, [toast]);
 
   const createDevAdmin = async () => {
     if (!email) {
@@ -33,10 +73,22 @@ const DevAdminSetup = () => {
       return;
     }
 
+    if (!selectedInstitution) {
+      toast({
+        title: "Error",
+        description: "Please select an institution",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-dev-admin', {
-        body: { email }
+        body: { 
+          email,
+          institutionId: selectedInstitution
+        }
       });
 
       if (error) throw error;
@@ -137,10 +189,13 @@ const DevAdminSetup = () => {
             </Button>
             <Button 
               variant="outline"
-              onClick={() => {
-                setCredentials(null);
-                setEmail('dev@admin.com');
-              }}
+            onClick={() => {
+              setCredentials(null);
+              setEmail('dev@admin.com');
+              if (institutions.length > 0) {
+                setSelectedInstitution(institutions[0].id);
+              }
+            }}
               className="w-full"
             >
               Create Another Admin
@@ -164,21 +219,47 @@ const DevAdminSetup = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Admin Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter admin email"
-            disabled={loading}
-          />
-        </div>
+        {institutionsLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            Loading institutions...
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="institution">Institution</Label>
+              <select
+                id="institution"
+                value={selectedInstitution}
+                onChange={(e) => setSelectedInstitution(e.target.value)}
+                disabled={loading}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {institutions.map((institution) => (
+                  <option key={institution.id} value={institution.id}>
+                    {institution.name} {institution.name_khmer && `(${institution.name_khmer})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Admin Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter admin email"
+                disabled={loading}
+              />
+            </div>
+          </>
+        )}
 
         <Button 
           onClick={createDevAdmin} 
-          disabled={loading || !email}
+          disabled={loading || !email || !selectedInstitution || institutionsLoading}
           className="w-full"
         >
           {loading ? (
