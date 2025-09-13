@@ -29,6 +29,8 @@ const DevAdminSetup = () => {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [credentials, setCredentials] = useState<DevCredentials | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [newInstitutionName, setNewInstitutionName] = useState('');
+  const [showNewInstitutionForm, setShowNewInstitutionForm] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -45,9 +47,6 @@ const DevAdminSetup = () => {
         if (error) throw error;
         
         setInstitutions(data || []);
-        if (data && data.length > 0) {
-          setSelectedInstitution(data[0].id);
-        }
       } catch (error) {
         console.error('Error fetching institutions:', error);
         toast({
@@ -63,6 +62,16 @@ const DevAdminSetup = () => {
     fetchInstitutions();
   }, [toast]);
 
+  const handleInstitutionChange = (value: string) => {
+    if (value === 'create-new') {
+      setShowNewInstitutionForm(true);
+      setSelectedInstitution('');
+    } else {
+      setShowNewInstitutionForm(false);
+      setSelectedInstitution(value);
+    }
+  };
+
   const createDevAdmin = async () => {
     if (!email) {
       toast({
@@ -73,10 +82,46 @@ const DevAdminSetup = () => {
       return;
     }
 
-    if (!selectedInstitution) {
+    let institutionId = selectedInstitution;
+
+    // If creating a new institution, create it first
+    if (showNewInstitutionForm) {
+      if (!newInstitutionName.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter an institution name",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      try {
+        const { data: newInstitution, error: institutionError } = await supabase
+          .from('institutions')
+          .insert({
+            name: newInstitutionName.trim(),
+            is_active: true
+          })
+          .select()
+          .single();
+
+        if (institutionError) throw institutionError;
+        institutionId = newInstitution.id;
+      } catch (error: any) {
+        console.error('Error creating institution:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create institution",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (!institutionId) {
       toast({
         title: "Error",
-        description: "Please select an institution",
+        description: "Please select or create an institution",
         variant: "destructive",
       });
       return;
@@ -87,7 +132,7 @@ const DevAdminSetup = () => {
       const { data, error } = await supabase.functions.invoke('create-dev-admin', {
         body: { 
           email,
-          institutionId: selectedInstitution
+          institutionId
         }
       });
 
@@ -192,9 +237,9 @@ const DevAdminSetup = () => {
             onClick={() => {
               setCredentials(null);
               setEmail('dev@admin.com');
-              if (institutions.length > 0) {
-                setSelectedInstitution(institutions[0].id);
-              }
+              setSelectedInstitution('');
+              setShowNewInstitutionForm(false);
+              setNewInstitutionName('');
             }}
               className="w-full"
             >
@@ -230,18 +275,34 @@ const DevAdminSetup = () => {
               <Label htmlFor="institution">Institution</Label>
               <select
                 id="institution"
-                value={selectedInstitution}
-                onChange={(e) => setSelectedInstitution(e.target.value)}
+                value={showNewInstitutionForm ? 'create-new' : selectedInstitution}
+                onChange={(e) => handleInstitutionChange(e.target.value)}
                 disabled={loading}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
+                <option value="">Select an institution...</option>
                 {institutions.map((institution) => (
                   <option key={institution.id} value={institution.id}>
                     {institution.name} {institution.name_khmer && `(${institution.name_khmer})`}
                   </option>
                 ))}
+                <option value="create-new">+ Create New Institution</option>
               </select>
             </div>
+
+            {showNewInstitutionForm && (
+              <div className="space-y-2">
+                <Label htmlFor="newInstitution">New Institution Name</Label>
+                <Input
+                  id="newInstitution"
+                  type="text"
+                  value={newInstitutionName}
+                  onChange={(e) => setNewInstitutionName(e.target.value)}
+                  placeholder="Enter institution name"
+                  disabled={loading}
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="email">Admin Email</Label>
@@ -259,7 +320,7 @@ const DevAdminSetup = () => {
 
         <Button 
           onClick={createDevAdmin} 
-          disabled={loading || !email || !selectedInstitution || institutionsLoading}
+          disabled={loading || !email || (!selectedInstitution && !showNewInstitutionForm) || (showNewInstitutionForm && !newInstitutionName.trim()) || institutionsLoading}
           className="w-full"
         >
           {loading ? (
