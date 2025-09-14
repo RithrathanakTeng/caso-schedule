@@ -537,6 +537,48 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_subject_assignments: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          assignment_type: string
+          created_at: string
+          id: string
+          institution_id: string
+          notes: string | null
+          status: string
+          subject_id: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          assignment_type?: string
+          created_at?: string
+          id?: string
+          institution_id: string
+          notes?: string | null
+          status?: string
+          subject_id: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          assignment_type?: string
+          created_at?: string
+          id?: string
+          institution_id?: string
+          notes?: string | null
+          status?: string
+          subject_id?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string

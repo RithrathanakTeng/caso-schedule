@@ -21,6 +21,7 @@ import TeacherAvailability from '@/components/teacher/TeacherAvailability';
 import TeacherNotifications from '@/components/teacher/TeacherNotifications';
 import TeacherProfile from '@/components/teacher/TeacherProfile';
 import NotificationSystem from '@/components/NotificationSystem';
+import { TeacherSubjectPreferences } from '@/components/teacher/TeacherSubjectPreferences';
 import GlobalNotificationBell from '@/components/GlobalNotificationBell';
 import LanguageToggle from '@/components/LanguageToggle';
 
@@ -215,9 +216,10 @@ const TeacherDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="schedule" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
             <TabsTrigger value="schedule" className="text-xs sm:text-sm">Schedule</TabsTrigger>
             <TabsTrigger value="availability" className="text-xs sm:text-sm">Availability</TabsTrigger>
+            <TabsTrigger value="subjects" className="text-xs sm:text-sm">Subjects</TabsTrigger>
             <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
           </TabsList>
@@ -228,6 +230,10 @@ const TeacherDashboard = () => {
 
           <TabsContent value="availability">
             <TeacherAvailability />
+          </TabsContent>
+
+          <TabsContent value="subjects">
+            <TeacherSubjectPreferences />
           </TabsContent>
 
           <TabsContent value="notifications">

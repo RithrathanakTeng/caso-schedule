@@ -14,6 +14,7 @@ import AvailabilityDialog from '@/components/forms/AvailabilityDialog';
 import ScheduleDialog from '@/components/forms/ScheduleDialog';
 import EditScheduleDialog from '@/components/forms/EditScheduleDialog';
 import TeacherListView from '@/components/teacher/TeacherListView';
+import { TeacherAssignments } from '@/components/coordinator/TeacherAssignments';
 import { 
   Calendar, 
   Clock, 
@@ -496,7 +497,7 @@ const CoordinatorDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-6 h-auto p-1">
             <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
               <span className="hidden sm:inline">Overview</span>
               <span className="sm:hidden">Home</span>
@@ -508,6 +509,10 @@ const CoordinatorDashboard = () => {
             <TabsTrigger value="teachers" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
               <span className="hidden sm:inline">Teachers</span>
               <span className="sm:hidden">Staff</span>
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
+              <span className="hidden sm:inline">Assignments</span>
+              <span className="sm:hidden">Assign</span>
             </TabsTrigger>
             <TabsTrigger value="courses" className="text-xs sm:text-sm py-2 px-1 sm:px-3">Courses</TabsTrigger>
             <TabsTrigger value="conflicts" className="text-xs sm:text-sm py-2 px-1 sm:px-3">
@@ -682,6 +687,10 @@ const CoordinatorDashboard = () => {
                 <TeacherListView />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="assignments">
+            <TeacherAssignments />
           </TabsContent>
 
           <TabsContent value="courses">
