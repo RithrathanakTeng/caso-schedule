@@ -61,29 +61,32 @@ export const TeacherAssignments = () => {
         .from('teacher_subject_assignments')
         .select(`
           *,
-          profiles!teacher_subject_assignments_teacher_id_fkey(
-            user_id, first_name, last_name, email
-          ),
           subjects(
             id, name, name_khmer, code,
             courses(name)
           )
-        `);
+        `)
+        .eq('institution_id', profile?.institution_id);
 
       if (assignmentsError) throw assignmentsError;
 
-      // Fetch all teachers
+      // Get teacher user IDs first
+      const { data: teacherRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'teacher')
+        .eq('institution_id', profile?.institution_id);
+
+      if (rolesError) throw rolesError;
+
+      const teacherIds = teacherRoles?.map(r => r.user_id) || [];
+
+      // Fetch teacher profiles
       const { data: teachersData, error: teachersError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email')
         .eq('institution_id', profile?.institution_id)
-        .in('user_id', (
-          await supabase
-            .from('user_roles')
-            .select('user_id')
-            .eq('role', 'teacher')
-            .eq('institution_id', profile?.institution_id)
-        ).data?.map(r => r.user_id) || []);
+        .in('user_id', teacherIds);
 
       if (teachersError) throw teachersError;
 
@@ -98,7 +101,13 @@ export const TeacherAssignments = () => {
 
       if (subjectsError) throw subjectsError;
 
-      setAssignments(assignmentsData || []);
+      // Combine assignments with teacher data
+      const enrichedAssignments = assignmentsData?.map(assignment => ({
+        ...assignment,
+        teacher: teachersData?.find(t => t.user_id === assignment.teacher_id)
+      })) || [];
+
+      setAssignments(enrichedAssignments);
       setTeachers(teachersData || []);
       setSubjects(subjectsData || []);
     } catch (error) {

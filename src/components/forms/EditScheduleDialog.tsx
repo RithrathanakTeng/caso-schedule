@@ -84,13 +84,28 @@ const EditScheduleDialog: React.FC<EditScheduleDialogProps> = ({ schedule, onSch
           created_at,
           updated_at,
           schedule_id,
-          subjects!inner (name),
-          profiles!inner (first_name, last_name)
+          subjects!inner (name)
         `)
         .eq('schedule_id', schedule.id);
 
       if (entriesError) throw entriesError;
-      setEntries((entriesData as unknown as ScheduleEntry[]) || []);
+
+      // Get teacher profiles separately
+      const teacherIds = [...new Set(entriesData?.map(entry => entry.teacher_id) || [])];
+      const { data: teacherProfiles, error: teacherError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', teacherIds);
+
+      if (teacherError) throw teacherError;
+
+      // Enrich entries with teacher data
+      const enrichedEntries = entriesData?.map(entry => ({
+        ...entry,
+        teacher: teacherProfiles?.find(t => t.user_id === entry.teacher_id)
+      })) || [];
+
+      setEntries((enrichedEntries as unknown as ScheduleEntry[]) || []);
 
       // Fetch subjects
       const { data: subjectsData, error: subjectsError } = await supabase
