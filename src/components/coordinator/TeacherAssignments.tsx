@@ -56,16 +56,10 @@ export const TeacherAssignments = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch assignments with teacher and subject details
+      // Fetch assignments 
       const { data: assignmentsData, error: assignmentsError } = await supabase
         .from('teacher_subject_assignments')
-        .select(`
-          *,
-          subjects(
-            id, name, name_khmer, code,
-            courses(name)
-          )
-        `)
+        .select('*')
         .eq('institution_id', profile?.institution_id);
 
       if (assignmentsError) throw assignmentsError;
@@ -93,23 +87,34 @@ export const TeacherAssignments = () => {
       // Fetch all subjects
       const { data: subjectsData, error: subjectsError } = await supabase
         .from('subjects')
-        .select(`
-          id, name, name_khmer, code,
-          courses(name)
-        `)
+        .select('*')
+        .eq('is_active', true);
+
+      // Fetch courses separately
+      const { data: coursesData, error: coursesError } = await supabase
+        .from('courses')
+        .select('id, name')
         .eq('is_active', true);
 
       if (subjectsError) throw subjectsError;
+      if (coursesError) throw coursesError;
 
-      // Combine assignments with teacher data
+      // Enrich subjects with course data
+      const enrichedSubjects = subjectsData?.map(subject => ({
+        ...subject,
+        course: coursesData?.find(c => c.id === subject.course_id)
+      })) || [];
+
+      // Combine assignments with teacher and subject data
       const enrichedAssignments = assignmentsData?.map(assignment => ({
         ...assignment,
-        teacher: teachersData?.find(t => t.user_id === assignment.teacher_id)
+        teacher: teachersData?.find(t => t.user_id === assignment.teacher_id),
+        subject: enrichedSubjects?.find(s => s.id === assignment.subject_id)
       })) || [];
 
       setAssignments(enrichedAssignments);
       setTeachers(teachersData || []);
-      setSubjects(subjectsData || []);
+      setSubjects(enrichedSubjects);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load data');
