@@ -194,34 +194,25 @@ const AdminDashboard = () => {
         return;
       }
 
-      // First delete related data (notifications, teacher_availability, etc.)
-      await supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', userToDelete.user_id);
+      // Call the edge function to properly delete the user
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: {
+          userId: userToDelete.user_id,
+          institutionId: profile.institution_id
+        }
+      });
 
-      await supabase
-        .from('teacher_availability')
-        .delete()
-        .eq('teacher_id', userToDelete.user_id);
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
 
-      // Delete user roles
-      const { error: rolesError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userToDelete.user_id)
-        .eq('institution_id', profile.institution_id);
+      if (!data?.success) {
+        throw new Error(data?.error || 'Unknown error occurred');
+      }
 
-      if (rolesError) throw rolesError;
-
-      // Finally delete the profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userToDelete.user_id)
-        .eq('institution_id', profile.institution_id);
-
-      if (profileError) throw profileError;
+      // Remove user from local state immediately
+      setUsers(prevUsers => prevUsers.filter(u => u.user_id !== userToDelete.user_id));
 
       toast({
         title: "Success",
@@ -230,6 +221,8 @@ const AdminDashboard = () => {
 
       setDeleteDialogOpen(false);
       setUserToDelete(null);
+      
+      // Refetch to ensure data consistency
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
