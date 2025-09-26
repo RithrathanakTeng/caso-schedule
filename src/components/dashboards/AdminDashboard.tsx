@@ -23,8 +23,11 @@ import {
   TrendingUp,
   Activity,
   Plus,
-  Trash2
+  Trash2,
+  Download
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { exportToCSV, exportToJSON, exportUsers, exportSchedules, exportNotifications, exportAllData } from '@/utils/export';
 import PaymentStatusDisplay from '@/components/PaymentStatusDisplay';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
@@ -252,6 +255,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
               <GlobalNotificationBell />
               <div className="text-right hidden md:block">
                 <p className="text-sm font-medium">
@@ -321,6 +325,33 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
+        {/* Export All Button */}
+        <div className="flex justify-end mb-4">
+          <Button 
+            variant="outline" 
+            onClick={async () => {
+              try {
+                if (!profile?.institution_id) return;
+                const allData = await exportAllData(profile.institution_id);
+                exportToJSON(allData, `institution-data-${new Date().toISOString().split('T')[0]}`);
+                toast({
+                  title: "Success",
+                  description: "All data exported successfully",
+                });
+              } catch (error) {
+                toast({
+                  title: "Error",
+                  description: "Failed to export data",
+                  variant: "destructive",
+                });
+              }
+            }}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export All Data
+          </Button>
+        </div>
+
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-3">
@@ -339,10 +370,36 @@ const AdminDashboard = () => {
                       Manage users, roles, and permissions for your institution
                     </CardDescription>
                   </div>
-                  <Button onClick={() => setAddUserOpen(true)} size="sm" className="sm:size-default">
-                    <UserPlus className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Add User</span>
-                  </Button>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          if (!profile?.institution_id) return;
+                          const userData = await exportUsers(profile.institution_id);
+                          exportToCSV(userData, `users-${new Date().toISOString().split('T')[0]}`);
+                          toast({
+                            title: "Success",
+                            description: "Users exported successfully",
+                          });
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to export users",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Export</span>
+                    </Button>
+                    <Button onClick={() => setAddUserOpen(true)} size="sm" className="sm:size-default">
+                      <UserPlus className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add User</span>
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

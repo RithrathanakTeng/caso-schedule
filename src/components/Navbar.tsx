@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,8 +58,9 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Language Switcher & CTA */}
+          {/* Language Switcher, Theme Toggle & CTA */}
           <div className="hidden lg:flex items-center space-x-4">
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center space-x-1">
@@ -91,6 +93,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -102,7 +105,7 @@ const Navbar = () => {
                   🇺🇸 English
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setLanguage('km')}>
-                  🇰🇭 ខ្មែរ
+                  🇰🇭 ខ្মែរ
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
