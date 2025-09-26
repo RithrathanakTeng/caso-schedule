@@ -28,11 +28,13 @@ import {
   Plus,
   CheckCircle,
   XCircle,
-  Trash2
+  Trash2,
+  Download
 } from 'lucide-react';
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
 import GlobalNotificationBell from '@/components/GlobalNotificationBell';
+import { exportToCSV, exportToJSON } from '@/utils/export';
 
 const CoordinatorDashboard = () => {
   const { profile, institution, signOut } = useAuth();
@@ -395,6 +397,81 @@ const CoordinatorDashboard = () => {
     }
   };
 
+  const exportSchedule = async (scheduleId: string, scheduleName: string, format: 'csv' | 'json') => {
+    try {
+      // First fetch schedule entries
+      const { data: scheduleEntries, error: entriesError } = await supabase
+        .from('schedule_entries')
+        .select(`
+          *,
+          subjects (name, code)
+        `)
+        .eq('schedule_id', scheduleId);
+
+      if (entriesError) throw entriesError;
+
+      if (!scheduleEntries || scheduleEntries.length === 0) {
+        toast({
+          title: "No Data",
+          description: "This schedule has no entries to export",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Get unique teacher IDs
+      const teacherIds = [...new Set(scheduleEntries.map(entry => entry.teacher_id))];
+      
+      // Fetch teacher profiles
+      const { data: teachers, error: teachersError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .in('user_id', teacherIds);
+
+      if (teachersError) throw teachersError;
+
+      // Create teacher lookup map
+      const teacherMap = new Map(teachers?.map(teacher => [teacher.user_id, teacher]) || []);
+
+      // Transform data for export
+      const exportData = scheduleEntries.map(entry => {
+        const teacher = teacherMap.get(entry.teacher_id);
+        return {
+          day_of_week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][entry.day_of_week],
+          start_time: entry.start_time,
+          end_time: entry.end_time,
+          subject: entry.subjects?.name || 'Unknown Subject',
+          subject_code: entry.subjects?.code || '',
+          teacher_name: teacher ? `${teacher.first_name} ${teacher.last_name}` : 'Unknown Teacher',
+          teacher_email: teacher?.email || '',
+          room: entry.room || '',
+          notes: entry.notes || ''
+        };
+      });
+
+      const filename = `schedule_${scheduleName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}`;
+
+      if (format === 'csv') {
+        exportToCSV(exportData, filename);
+      } else {
+        exportToJSON(exportData, filename);
+      }
+
+      toast({
+        title: "Success",
+        description: `Schedule exported as ${format.toUpperCase()}`
+      });
+
+    } catch (error) {
+      console.error('Error exporting schedule:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export schedule",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
@@ -629,6 +706,26 @@ const CoordinatorDashboard = () => {
                             Publish
                           </Button>
                         )}
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => exportSchedule(schedule.id, schedule.name, 'csv')}
+                            className="w-full sm:w-auto"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            CSV
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => exportSchedule(schedule.id, schedule.name, 'json')}
+                            className="w-full sm:w-auto"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            JSON
+                          </Button>
+                        </div>
                         <Button 
                           variant="outline" 
                           size="sm"
