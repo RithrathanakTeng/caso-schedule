@@ -42,13 +42,45 @@ export const TeacherSubjectPreferences = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (user && profile) {
-      fetchData();
-    }
-  }, [user, profile]);
+useEffect(() => {
+    if (!user || !profile) return;
+
+    fetchData();
+
+    // Set up real-time subscriptions for instant updates
+    const channel = supabase
+      .channel(`teacher-subjects:${user.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'teacher_subject_assignments', 
+        filter: `teacher_id=eq.${user.id}` 
+      }, () => {
+        fetchData();
+        console.log('🔁 TeacherSubjectPreferences: assignment change detected → refreshed');
+      })
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'subjects'
+      }, () => {
+        fetchData();
+        console.log('🔁 TeacherSubjectPreferences: subjects change detected → refreshed');
+      })
+      .subscribe();
+
+    // Fallback: periodic refresh every 30s
+    const interval = setInterval(fetchData, 30000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
+  }, [user?.id, profile?.institution_id]);
 
   const fetchData = async () => {
+    if (!user || !profile) return;
+    
     try {
       // Fetch subjects with course/grade level info
       const { data: subjectsData, error: subjectsError } = await supabase
