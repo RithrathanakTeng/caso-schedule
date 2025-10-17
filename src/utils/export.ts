@@ -1,4 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface ExportData {
   users?: any[];
@@ -46,6 +48,44 @@ export const exportToJSON = (data: any, filename: string) => {
   link.download = `${filename}.json`;
   link.click();
   URL.revokeObjectURL(link.href);
+};
+
+export const exportToPDF = (data: any[], filename: string, title?: string) => {
+  if (!data.length) return;
+
+  const doc = new jsPDF();
+  
+  // Add title
+  if (title) {
+    doc.setFontSize(16);
+    doc.text(title, 14, 15);
+  }
+
+  // Get headers and prepare data
+  const headers = Object.keys(data[0]);
+  const rows = data.map(row => 
+    headers.map(header => {
+      const value = row[header];
+      if (Array.isArray(value)) {
+        return value.join('; ');
+      }
+      if (typeof value === 'object' && value !== null) {
+        return JSON.stringify(value);
+      }
+      return String(value || '');
+    })
+  );
+
+  // Add table
+  autoTable(doc, {
+    head: [headers],
+    body: rows,
+    startY: title ? 25 : 15,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [66, 139, 202] },
+  });
+
+  doc.save(`${filename}.pdf`);
 };
 
 export const exportUsers = async (institutionId: string) => {

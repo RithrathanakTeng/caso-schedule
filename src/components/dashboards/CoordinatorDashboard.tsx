@@ -34,7 +34,7 @@ import {
 import ConflictDetectionSystem from '@/components/ConflictDetectionSystem';
 import NotificationSystem from '@/components/NotificationSystem';
 import GlobalNotificationBell from '@/components/GlobalNotificationBell';
-import { exportToCSV, exportToJSON } from '@/utils/export';
+import { exportToCSV, exportToJSON, exportToPDF } from '@/utils/export';
 
 const CoordinatorDashboard = () => {
   const { profile, institution, signOut } = useAuth();
@@ -397,7 +397,7 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  const exportSchedule = async (scheduleId: string, scheduleName: string, format: 'csv' | 'json') => {
+  const exportSchedule = async (scheduleId: string, scheduleName: string, format: 'csv' | 'json' | 'pdf') => {
     try {
       // First fetch schedule entries
       const { data: scheduleEntries, error: entriesError } = await supabase
@@ -453,8 +453,10 @@ const CoordinatorDashboard = () => {
 
       if (format === 'csv') {
         exportToCSV(exportData, filename);
-      } else {
+      } else if (format === 'json') {
         exportToJSON(exportData, filename);
+      } else if (format === 'pdf') {
+        exportToPDF(exportData, filename, `Schedule: ${scheduleName}`);
       }
 
       toast({
@@ -724,6 +726,15 @@ const CoordinatorDashboard = () => {
                           >
                             <Download className="h-4 w-4 mr-1" />
                             JSON
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => exportSchedule(schedule.id, schedule.name, 'pdf')}
+                            className="w-full sm:w-auto"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            PDF
                           </Button>
                         </div>
                         <Button 
