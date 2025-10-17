@@ -30,6 +30,7 @@ const TeacherScheduleView = () => {
   const { toast } = useToast();
   const [scheduleEntries, setScheduleEntries] = useState<ScheduleEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchSchedule = async () => {
     if (!user || !profile?.institution_id) return;
@@ -62,6 +63,7 @@ const TeacherScheduleView = () => {
       if (error) throw error;
 
       setScheduleEntries(entries || []);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching schedule:', error);
       toast({
@@ -89,14 +91,18 @@ const TeacherScheduleView = () => {
           filter: `teacher_id=eq.${user?.id}`
         },
         () => {
-          // Refetch schedule when any changes occur
           fetchSchedule();
+          toast({ title: 'Schedule updated', description: 'Your schedule was refreshed.' });
         }
       )
       .subscribe();
 
+    // Fallback: periodic refresh in case realtime is unavailable
+    const interval = setInterval(fetchSchedule, 30000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, [user, profile]);
 
@@ -125,7 +131,10 @@ const TeacherScheduleView = () => {
               My Teaching Schedule
             </CardTitle>
             <CardDescription>
-              Your current weekly teaching schedule
+              Your current weekly teaching schedule{' '}
+              {lastUpdated && (
+                <span className="text-muted-foreground">• Last updated {lastUpdated.toLocaleTimeString()}</span>
+              )}
             </CardDescription>
           </div>
           <Button variant="outline" onClick={fetchSchedule}>
