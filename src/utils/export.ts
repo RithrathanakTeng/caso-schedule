@@ -53,36 +53,116 @@ export const exportToJSON = (data: any, filename: string) => {
 export const exportToPDF = (data: any[], filename: string, title?: string) => {
   if (!data.length) return;
 
-  const doc = new jsPDF();
+  const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for better table display
   
-  // Add title
-  if (title) {
-    doc.setFontSize(16);
-    doc.text(title, 14, 15);
-  }
+  // Header section with branding
+  doc.setFillColor(37, 99, 235); // Primary blue
+  doc.rect(0, 0, 297, 35, 'F');
+  
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title || 'Schedule Export', 14, 15);
+  
+  // Subtitle with date
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  const exportDate = new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  doc.text(`Generated on ${exportDate}`, 14, 25);
+  
+  // Reset text color for table
+  doc.setTextColor(0, 0, 0);
 
-  // Get headers and prepare data
-  const headers = Object.keys(data[0]);
+  // Prepare headers with better formatting
+  const headers = Object.keys(data[0]).map(header => 
+    header.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ')
+  );
+  
+  const originalHeaders = Object.keys(data[0]);
+  
+  // Prepare rows with better formatting
   const rows = data.map(row => 
-    headers.map(header => {
+    originalHeaders.map(header => {
       const value = row[header];
       if (Array.isArray(value)) {
-        return value.join('; ');
+        return value.join(', ');
       }
       if (typeof value === 'object' && value !== null) {
+        if (value.name) return value.name;
         return JSON.stringify(value);
       }
-      return String(value || '');
+      // Format dates nicely
+      if (header.includes('date') || header.includes('time')) {
+        try {
+          const date = new Date(value);
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('en-US');
+          }
+        } catch (e) {
+          // Not a date, continue
+        }
+      }
+      return String(value || '-');
     })
   );
 
-  // Add table
+  // Add table with enhanced styling
   autoTable(doc, {
     head: [headers],
     body: rows,
-    startY: title ? 25 : 15,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [66, 139, 202] },
+    startY: 40,
+    theme: 'striped',
+    headStyles: { 
+      fillColor: [37, 99, 235], // Primary blue
+      textColor: [255, 255, 255],
+      fontSize: 10,
+      fontStyle: 'bold',
+      halign: 'center',
+      cellPadding: 4
+    },
+    styles: { 
+      fontSize: 9,
+      cellPadding: 3,
+      overflow: 'linebreak',
+      halign: 'left',
+      valign: 'middle'
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252] // Light gray
+    },
+    columnStyles: {
+      0: { cellWidth: 'auto', fontStyle: 'bold' }
+    },
+    margin: { top: 40, left: 14, right: 14 },
+    didDrawPage: (data) => {
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(
+        `Page ${data.pageNumber} of ${pageCount}`,
+        doc.internal.pageSize.width / 2,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+      
+      // Watermark
+      doc.text(
+        'Caso Schedule Pro',
+        doc.internal.pageSize.width - 14,
+        doc.internal.pageSize.height - 10,
+        { align: 'right' }
+      );
+    }
   });
 
   doc.save(`${filename}.pdf`);
