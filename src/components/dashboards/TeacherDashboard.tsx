@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,8 @@ import {
   LogOut,
   CalendarDays,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import TeacherScheduleView from '@/components/teacher/TeacherScheduleView';
 import TeacherAvailability from '@/components/teacher/TeacherAvailability';
@@ -43,82 +44,103 @@ const TeacherDashboard = () => {
     stats 
   });
 
+const fetchStats = useCallback(async () => {
+    console.log('🔄 TeacherDashboard: Starting to fetch stats', { user: user?.email, profile: !!profile });
+    
+    if (!user || !profile?.institution_id) {
+      console.log('⚠️ TeacherDashboard: Missing user or profile institution_id', { 
+        hasUser: !!user, 
+        hasProfile: !!profile, 
+        hasInstitutionId: !!profile?.institution_id 
+      });
+      return;
+    }
+
+    try {
+      console.log('📊 TeacherDashboard: Fetching schedule entries...');
+      const { data: scheduleEntries, error: scheduleError } = await supabase
+        .from('schedule_entries')
+        .select('id')
+        .eq('teacher_id', user.id);
+
+      if (scheduleError) {
+        console.error('❌ TeacherDashboard: Schedule entries error:', scheduleError);
+        throw scheduleError;
+      }
+
+      console.log('✅ TeacherDashboard: Schedule entries fetched:', scheduleEntries?.length);
+
+      console.log('📅 TeacherDashboard: Fetching availability...');
+      const { data: availability, error: availabilityError } = await supabase
+        .from('teacher_availability')
+        .select('id')
+        .eq('teacher_id', user.id)
+        .eq('institution_id', profile.institution_id)
+        .limit(1);
+
+      if (availabilityError) {
+        console.error('❌ TeacherDashboard: Availability error:', availabilityError);
+        throw availabilityError;
+      }
+
+      console.log('📧 TeacherDashboard: Fetching notifications...');
+      const { data: notifications, error: notificationsError } = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+      if (notificationsError) {
+        console.error('❌ TeacherDashboard: Notifications error:', notificationsError);
+      }
+
+      console.log('✅ TeacherDashboard: Availability fetched:', availability?.length);
+
+      const newStats = {
+        weeklyClasses: scheduleEntries?.length || 0,
+        availabilityUpdated: !!(availability && availability.length > 0),
+        notifications: notifications?.length || 0
+      };
+
+      console.log('📈 TeacherDashboard: Setting stats:', newStats);
+      setStats(newStats);
+      console.log('✅ TeacherDashboard: Stats fetch completed successfully');
+    } catch (error) {
+      console.error('❌ TeacherDashboard: Error fetching stats:', error);
+    }
+  }, [user?.id, profile?.institution_id]);
+
   useEffect(() => {
-    const fetchStats = async () => {
-      console.log('🔄 TeacherDashboard: Starting to fetch stats', { user: user?.email, profile: !!profile });
-      
-      if (!user || !profile?.institution_id) {
-        console.log('⚠️ TeacherDashboard: Missing user or profile institution_id', { 
-          hasUser: !!user, 
-          hasProfile: !!profile, 
-          hasInstitutionId: !!profile?.institution_id 
-        });
-        return;
-      }
-
-      try {
-        console.log('📊 TeacherDashboard: Fetching schedule entries...');
-        
-        // Get weekly classes count for current schedules
-        const { data: scheduleEntries, error: scheduleError } = await supabase
-          .from('schedule_entries')
-          .select('id')
-          .eq('teacher_id', user.id);
-
-        if (scheduleError) {
-          console.error('❌ TeacherDashboard: Schedule entries error:', scheduleError);
-          throw scheduleError;
-        }
-
-        console.log('✅ TeacherDashboard: Schedule entries fetched:', scheduleEntries?.length);
-
-        console.log('📅 TeacherDashboard: Fetching availability...');
-        
-        // Get availability status
-        const { data: availability, error: availabilityError } = await supabase
-          .from('teacher_availability')
-          .select('id')
-          .eq('teacher_id', user.id)
-          .eq('institution_id', profile.institution_id)
-          .limit(1);
-
-        if (availabilityError) {
-          console.error('❌ TeacherDashboard: Availability error:', availabilityError);
-          throw availabilityError;
-        }
-
-        console.log('📧 TeacherDashboard: Fetching notifications...');
-        
-        // Get real notifications count
-        const { data: notifications, error: notificationsError } = await supabase
-          .from('notifications')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('is_read', false);
-
-        if (notificationsError) {
-          console.error('❌ TeacherDashboard: Notifications error:', notificationsError);
-        }
-
-        console.log('✅ TeacherDashboard: Availability fetched:', availability?.length);
-
-        const newStats = {
-          weeklyClasses: scheduleEntries?.length || 0,
-          availabilityUpdated: availability && availability.length > 0,
-          notifications: notifications?.length || 0
-        };
-
-        console.log('📈 TeacherDashboard: Setting stats:', newStats);
-        setStats(newStats);
-        
-        console.log('✅ TeacherDashboard: Stats fetch completed successfully');
-      } catch (error) {
-        console.error('❌ TeacherDashboard: Error fetching stats:', error);
-      }
-    };
-
+    // Initial fetch
     fetchStats();
-  }, [user, profile]);
+
+    if (!user) return;
+
+    // Realtime: listen to relevant changes
+    const channel = supabase
+      .channel(`teacher-dashboard:${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'schedule_entries', filter: `teacher_id=eq.${user.id}` }, () => {
+        fetchStats();
+        console.log('🔁 TeacherDashboard: schedule_entries change detected → stats refreshed');
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'teacher_availability', filter: `teacher_id=eq.${user.id}` }, () => {
+        fetchStats();
+        console.log('🔁 TeacherDashboard: teacher_availability change detected → stats refreshed');
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => {
+        fetchStats();
+        console.log('🔁 TeacherDashboard: notifications change detected → stats refreshed');
+      })
+      .subscribe();
+
+    // Fallback: periodic refresh every 30s
+    const interval = setInterval(fetchStats, 30000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
+  }, [fetchStats, user?.id]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -155,6 +177,13 @@ const TeacherDashboard = () => {
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
+              <Button variant="outline" size="sm" onClick={fetchStats} className="hidden sm:flex">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button variant="outline" size="sm" onClick={fetchStats} className="sm:hidden p-2">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
               <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
