@@ -76,6 +76,28 @@ const TeacherScheduleView = () => {
 
   useEffect(() => {
     fetchSchedule();
+
+    // Set up real-time subscription for schedule changes
+    const channel = supabase
+      .channel('schedule-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'schedule_entries',
+          filter: `teacher_id=eq.${user?.id}`
+        },
+        () => {
+          // Refetch schedule when any changes occur
+          fetchSchedule();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, profile]);
 
   const getEntriesForDay = (dayIndex: number) => {
