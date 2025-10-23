@@ -13,8 +13,10 @@ import {
   Send, MessageCircle, Calendar,
   Headphones, Users, Building
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Contact = () => {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -60,23 +62,19 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            Contact Us
+            {t('contact.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Get in Touch
+            {t('contact.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Ready to transform your institution's scheduling? We're here to help you get started 
-            with demos, pricing information, and technical support.
+            {t('contact.hero.subtitle')}
           </p>
-          <div className="text-lg font-khmer text-muted-foreground">
-            ត្រៀមខ្លួនដើម្បីបំប្លែងការបង្កើតកាលវិភាគរបស់ស្ថាប័នអ្នកហើយឬនៅ? យើងនៅទីនេះដើម្បីជួយអ្នក
-          </div>
         </div>
       </section>
 
@@ -95,7 +93,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-3">
                   <Mail className="w-5 h-5 text-primary mt-1" />
                   <div>
-                    <h4 className="font-semibold">Email Support</h4>
+                    <h4 className="font-semibold">{t('contact.support.email')}</h4>
                     <p className="text-muted-foreground">support@casoschedule.com</p>
                     <p className="text-sm text-muted-foreground">Response within 24 hours</p>
                   </div>
@@ -104,7 +102,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-3">
                   <Phone className="w-5 h-5 text-primary mt-1" />
                   <div>
-                    <h4 className="font-semibold">Phone Support</h4>
+                    <h4 className="font-semibold">{t('contact.support.phone')}</h4>
                     <p className="text-muted-foreground">+855 12 345 678</p>
                     <p className="text-sm text-muted-foreground">Mon-Fri, 8AM-6PM (ICT)</p>
                   </div>
@@ -113,7 +111,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-primary mt-1" />
                   <div>
-                    <h4 className="font-semibold">Office Location</h4>
+                    <h4 className="font-semibold">{t('contact.support.location')}</h4>
                     <p className="text-muted-foreground">Phnom Penh, Cambodia</p>
                     <p className="text-sm text-muted-foreground">Available for on-site demos</p>
                   </div>
@@ -122,7 +120,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-3">
                   <Clock className="w-5 h-5 text-primary mt-1" />
                   <div>
-                    <h4 className="font-semibold">Business Hours</h4>
+                    <h4 className="font-semibold">{t('contact.support.hours')}</h4>
                     <p className="text-muted-foreground">Monday - Friday</p>
                     <p className="text-sm text-muted-foreground">8:00 AM - 6:00 PM (ICT)</p>
                   </div>
@@ -182,7 +180,7 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="name">Full Name *</Label>
+                    <Label htmlFor="name">{t('contact.form.name')} *</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -193,7 +191,7 @@ const Contact = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="email">Email Address *</Label>
+                    <Label htmlFor="email">{t('contact.form.email')} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -207,7 +205,7 @@ const Contact = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="institution">Institution Name</Label>
+                    <Label htmlFor="institution">{t('contact.form.institution')}</Label>
                     <Input
                       id="institution"
                       value={formData.institution}
@@ -234,7 +232,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="subject">Subject *</Label>
+                  <Label htmlFor="subject">{t('contact.form.subject')} *</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
@@ -245,7 +243,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="message">Message *</Label>
+                  <Label htmlFor="message">{t('contact.form.message')} *</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
@@ -265,12 +263,12 @@ const Contact = () => {
                   {loading ? (
                     <>
                       <MessageCircle className="w-4 h-4 mr-2 animate-spin" />
-                      Sending...
+                      {t('contact.form.sending')}
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Send Message
+                      {t('contact.form.send')}
                     </>
                   )}
                 </Button>

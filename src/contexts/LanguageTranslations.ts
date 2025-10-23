@@ -31,6 +31,7 @@ export const extendedTranslations = {
     'roles.teacher.desc': 'Personal schedule management with availability setting and profile control',
     
     // How It Works Page
+    'howItWorks.hero.badge': 'How It Works',
     'howItWorks.hero.title': 'From Setup to Success in Simple Steps',
     'howItWorks.hero.subtitle': 'Discover how our AI-powered platform transforms complex scheduling into a simple, automated process that saves time and eliminates conflicts.',
     'howItWorks.step1.title': 'Setup & Configuration',
@@ -39,6 +40,7 @@ export const extendedTranslations = {
     'howItWorks.step4.title': 'Review & Deploy',
     
     // AI Advantage Page
+    'aiAdvantage.hero.badge': 'AI Technology',
     'aiAdvantage.hero.title': 'The AI Advantage in Academic Scheduling',
     'aiAdvantage.hero.subtitle': 'Discover how artificial intelligence transforms complex scheduling challenges into simple, automated solutions that work perfectly every time.',
     
@@ -51,6 +53,7 @@ export const extendedTranslations = {
     'about.story': 'Our Story',
     
     // Contact Page
+    'contact.hero.badge': 'Contact Us',
     'contact.hero.title': 'Get in Touch',
     'contact.hero.subtitle': 'Ready to transform your institution\'s scheduling? We\'re here to help you get started with demos, pricing information, and technical support.',
     'contact.form.name': 'Full Name',
@@ -96,6 +99,7 @@ export const extendedTranslations = {
     'roles.teacher.desc': 'ការគ្រប់គ្រងកាលវិភាគផ្ទាល់ខ្លួន ជាមួយនឹងការកំណត់ភាពអាចរកបាន និងការគ្រប់គ្រងប្រវត្តិរូប',
     
     // How It Works Page
+    'howItWorks.hero.badge': 'របៀបដំណើរការ',
     'howItWorks.hero.title': 'ពីការរៀបចំ ទៅជោគជ័យ ក្នុងជំហានសាមញ្ញ',
     'howItWorks.hero.subtitle': 'ស្វែងយល់ពីរបៀបដែលវេទិកាដោយ AI របស់យើង បំប្លែងការបង្កើតកាលវិភាគស្មុគស្មាញ ទៅជាដំណើរការសាមញ្ញ និងស្វ័យប្រវត្តិ ដែលសន្សំពេលវេលា និងលុបបំបាត់ជម្លោះ។',
     'howItWorks.step1.title': 'ការរៀបចំ និងការកំណត់',
@@ -104,6 +108,7 @@ export const extendedTranslations = {
     'howItWorks.step4.title': 'ពិនិត្យ និងដាក់ឱ្យប្រើប្រាស់',
     
     // AI Advantage Page
+    'aiAdvantage.hero.badge': 'បច្ចេកវិទ្យា AI',
     'aiAdvantage.hero.title': 'អត្ថប្រយោជន៍ AI ក្នុងការបង្កើតកាលវិភាគសិក្សា',
     'aiAdvantage.hero.subtitle': 'ស្វែងយល់ពីរបៀបដែលបញ្ញាសិប្បនិម្មិត្ត បំប្លែងបញ្ហាកាលវិភាគស្មុគស្មាញ ទៅជាដំណោះស្រាយសាមញ្ញ និងស្វ័យប្រវត្តិ ដែលដំណើរការយ៉ាងល្អឥតខ្ចោះរៀងរាល់ពេល។',
     
@@ -116,6 +121,7 @@ export const extendedTranslations = {
     'about.story': 'រឿងរ៉ាវរបស់យើង',
     
     // Contact Page
+    'contact.hero.badge': 'ទាក់ទងយើង',
     'contact.hero.title': 'ទាក់ទងយើង',
     'contact.hero.subtitle': 'រួចរាល់ក្នុងការបំប្លែងកាលវិភាគស្ថាប័នរបស់អ្នកហើយឬនៅ? យើងនៅទីនេះដើម្បីជួយអ្នកចាប់ផ្តើម ជាមួយនឹងការបង្ហាញ ព័ត៌មានតម្លៃ និងការគាំទ្របច្ចេកទេស។',
     'contact.form.name': 'ឈ្មោះពេញ',

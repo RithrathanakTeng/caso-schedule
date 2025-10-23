@@ -8,22 +8,24 @@ import {
   Lightbulb, Cpu, Database
 } from "lucide-react";
 import aiAssistant from "@/assets/ai-assistant.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AIAdvantage = () => {
+  const { t, language } = useLanguage();
+  
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            AI Technology
+            {t('aiAdvantage.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            The AI Advantage in Academic Scheduling
+            {t('aiAdvantage.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Discover how artificial intelligence transforms complex scheduling challenges 
-            into simple, automated solutions that work perfectly every time.
+            {t('aiAdvantage.hero.subtitle')}
           </p>
         </div>
       </section>

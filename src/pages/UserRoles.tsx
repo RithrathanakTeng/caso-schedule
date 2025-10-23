@@ -7,22 +7,24 @@ import {
   ArrowRight, CheckCircle, Settings,
   Eye, Edit, Plus
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const UserRoles = () => {
+  const { t, language } = useLanguage();
+  
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            User Management
+            {t('roles.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Structured Role-Based Access
+            {t('roles.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Clear permissions and workflows for Admins, Coordinators, and Teachers 
-            ensure smooth operations while maintaining security and accountability.
+            {t('roles.hero.subtitle')}
           </p>
         </div>
       </section>
@@ -37,9 +39,9 @@ const UserRoles = () => {
                 <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-6 mx-auto">
                   <Shield className="w-8 h-8 text-primary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Administrator</h3>
+                <h3 className="text-2xl font-semibold mb-4">{t('roles.admin')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Complete system oversight with full access to all features and settings
+                  {t('roles.admin.desc')}
                 </p>
                 <div className="text-left space-y-3">
                   <div className="flex items-center space-x-2">
@@ -68,9 +70,9 @@ const UserRoles = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-secondary to-secondary-light rounded-full flex items-center justify-center mb-6 mx-auto">
                   <Calendar className="w-8 h-8 text-secondary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Coordinator</h3>
+                <h3 className="text-2xl font-semibold mb-4">{t('roles.coordinator')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Schedule creation and management with oversight of academic operations
+                  {t('roles.coordinator.desc')}
                 </p>
                 <div className="text-left space-y-3">
                   <div className="flex items-center space-x-2">
@@ -99,9 +101,9 @@ const UserRoles = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-accent to-accent-light rounded-full flex items-center justify-center mb-6 mx-auto">
                   <Users className="w-8 h-8 text-accent-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4">Teacher</h3>
+                <h3 className="text-2xl font-semibold mb-4">{t('roles.teacher')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Personal schedule management with availability setting and profile control
+                  {t('roles.teacher.desc')}
                 </p>
                 <div className="text-left space-y-3">
                   <div className="flex items-center space-x-2">

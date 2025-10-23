@@ -8,25 +8,28 @@ import {
   Monitor, Smartphone, Database, Cloud,
   ArrowRight, Star
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Features = () => {
+  const { t, language } = useLanguage();
+  
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            Complete Feature Set
+            {t('features.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Powerful Features for Modern Education
+            {t('features.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Discover how our AI-powered scheduling platform transforms academic administration with intelligent automation and seamless user experience.
+            {t('features.hero.subtitle')}
           </p>
           <Button variant="hero" size="lg" asChild>
             <Link to="/auth">
-              Try Demo
+              {t('features.hero.tryDemo')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
           </Button>
@@ -38,11 +41,11 @@ const Features = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
-              AI Technology
+              {t('features.ai.badge')}
             </Badge>
-            <h2 className="text-3xl font-bold mb-4">Intelligent Scheduling Engine</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('features.ai.title')}</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Advanced algorithms that understand your institution's unique requirements
+              {t('features.ai.subtitle')}
             </p>
           </div>
 
@@ -52,13 +55,13 @@ const Features = () => {
                 <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                   <Brain className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Smart Conflict Detection</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('features.ai.conflictDetection')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Automatically identifies scheduling conflicts before they happen, preventing double-bookings and resource overlaps.
+                  {t('features.ai.conflictDetectionDesc')}
                 </p>
                 <div className="flex items-center text-sm text-success">
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  99.9% Accuracy Rate
+                  {t('features.ai.accuracy')}
                 </div>
               </CardContent>
             </Card>
@@ -68,13 +71,13 @@ const Features = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-secondary to-secondary-light rounded-lg flex items-center justify-center mb-4">
                   <Zap className="w-6 h-6 text-secondary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Instant Optimization</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('features.ai.instantOptimization')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Generate complete timetables in seconds with optimal resource allocation and minimal gaps.
+                  {t('features.ai.instantOptimizationDesc')}
                 </p>
                 <div className="flex items-center text-sm text-success">
                   <Clock className="w-4 h-4 mr-2" />
-                  80% Time Saved
+                  {t('features.ai.timeSaved')}
                 </div>
               </CardContent>
             </Card>
@@ -84,13 +87,13 @@ const Features = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-light rounded-lg flex items-center justify-center mb-4">
                   <BarChart3 className="w-6 h-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Predictive Analytics</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('features.ai.predictiveAnalytics')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Analyze patterns to suggest improvements and predict scheduling challenges before they occur.
+                  {t('features.ai.predictiveAnalyticsDesc')}
                 </p>
                 <div className="flex items-center text-sm text-success">
                   <Star className="w-4 h-4 mr-2" />
-                  Data-Driven Insights
+                  {t('features.ai.dataInsights')}
                 </div>
               </CardContent>
             </Card>

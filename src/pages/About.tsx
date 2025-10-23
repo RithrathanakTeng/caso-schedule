@@ -8,26 +8,25 @@ import {
   Award, Lightbulb, BookOpen
 } from "lucide-react";
 import cambodianSchool from "@/assets/cambodian-school.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const About = () => {
+  const { t, language } = useLanguage();
+  
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            About Caso Schedule Pro
+            {t('about.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Transforming Education Through Technology
+            {t('about.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            We're on a mission to revolutionize academic scheduling in Cambodia by combining 
-            artificial intelligence with deep understanding of local educational needs.
+            {t('about.hero.subtitle')}
           </p>
-          <div className="text-lg mb-8 font-khmer text-muted-foreground">
-            យើងមានបេសកកម្មដើម្បីបំប្លែងការបង្កើតកាលវិភាគសិក្សានៅកម្ពុជា ដោយការផ្សំបញ្ញាសិប្បនិម្មិត្ត ជាមួយនឹងការយល់ដឹងស៊ីជម្រៅអំពីតម្រូវការអប់រំក្នុងស្រុក
-          </div>
         </div>
       </section>
 
@@ -37,7 +36,7 @@ const About = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
-                Our Mission
+                {t('about.mission')}
               </Badge>
               <h2 className="text-3xl font-bold mb-6">
                 Empowering Cambodian Educators
@@ -84,7 +83,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-              Our Values
+              {t('about.values')}
             </Badge>
             <h2 className="text-3xl font-bold mb-4">What Drives Us Forward</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -179,7 +178,7 @@ const About = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
-              Our Story
+              {t('about.story')}
             </Badge>
             <h2 className="text-3xl font-bold mb-6">How It All Started</h2>
           </div>

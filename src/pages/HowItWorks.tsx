@@ -8,26 +8,25 @@ import {
   Clock, Target, Zap, Monitor
 } from "lucide-react";
 import aiAssistant from "@/assets/ai-assistant.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HowItWorks = () => {
+  const { t, language } = useLanguage();
+  
   return (
-    <div className="min-h-screen pt-16">
+    <div className={`min-h-screen pt-16 ${language === 'km' ? 'font-khmer' : ''}`}>
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            How It Works
+            {t('howItWorks.hero.badge')}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            From Setup to Success in Simple Steps
+            {t('howItWorks.hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Discover how our AI-powered platform transforms complex scheduling into a simple, 
-            automated process that saves time and eliminates conflicts.
+            {t('howItWorks.hero.subtitle')}
           </p>
-          <div className="text-lg font-khmer text-muted-foreground">
-            សិក្សាពីរបៀបដែលប្រព័ន្ធ AI របស់យើង បំប្លែងការបង្កើតកាលវិភាគស្មុគស្មាញ ទៅជាដំណើរការសាមញ្ញ និងស្វ័យប្រវត្តិ
-          </div>
         </div>
       </section>
 
@@ -54,7 +53,7 @@ const HowItWorks = () => {
                 <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                   <Settings className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-3">Setup & Configuration</h3>
+                <h3 className="text-lg font-semibold mb-3">{t('howItWorks.step1.title')}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
                   Configure your institution, add courses, subjects, and define your scheduling parameters.
                 </p>
@@ -75,7 +74,7 @@ const HowItWorks = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-secondary to-secondary-light rounded-lg flex items-center justify-center mb-4">
                   <Users className="w-6 h-6 text-secondary-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-3">Add Users & Availability</h3>
+                <h3 className="text-lg font-semibold mb-3">{t('howItWorks.step2.title')}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
                   Add teachers, coordinators, and set their availability preferences and constraints.
                 </p>
@@ -96,7 +95,7 @@ const HowItWorks = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-light rounded-lg flex items-center justify-center mb-4">
                   <Brain className="w-6 h-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-3">AI Generation</h3>
+                <h3 className="text-lg font-semibold mb-3">{t('howItWorks.step3.title')}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
                   Our AI analyzes all constraints and generates optimal schedules in seconds.
                 </p>
@@ -117,7 +116,7 @@ const HowItWorks = () => {
                 <div className="w-12 h-12 bg-gradient-to-br from-success to-success rounded-lg flex items-center justify-center mb-4">
                   <CheckCircle className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-3">Review & Deploy</h3>
+                <h3 className="text-lg font-semibold mb-3">{t('howItWorks.step4.title')}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
                   Review the generated schedule, make adjustments if needed, and deploy to your institution.
                 </p>
