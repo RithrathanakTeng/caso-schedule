@@ -9,10 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'km'>('en');
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
 
   const navigation = [
@@ -36,7 +37,7 @@ const Navbar = () => {
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">CS</span>
             </div>
-            <span className="font-bold text-xl text-primary">
+            <span className={`font-bold text-xl text-primary ${language === 'km' ? 'font-khmer' : ''}`}>
               {language === 'en' ? 'Caso Schedule Pro' : 'កាសូ កាលវិភាគ ប្រូ'}
             </span>
           </Link>
@@ -80,13 +81,13 @@ const Navbar = () => {
             </DropdownMenu>
             
             <Button asChild variant="outline" size="sm" className="mr-2">
-              <Link to="/auth">
-                {language === 'en' ? 'Sign In' : 'ចូល'}
+              <Link to="/auth" className={language === 'km' ? 'font-khmer' : ''}>
+                {t('nav.signIn')}
               </Link>
             </Button>
             <Button variant="hero" size="sm" asChild>
-              <Link to="/auth">
-                {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+              <Link to="/auth" className={language === 'km' ? 'font-khmer' : ''}>
+                {t('nav.requestDemo')}
               </Link>
             </Button>
           </div>
@@ -140,13 +141,13 @@ const Navbar = () => {
               ))}
               <div className="pt-4 space-y-2">
                 <Button asChild variant="outline" className="w-full">
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    {language === 'en' ? 'Sign In' : 'ចូល'}
+                  <Link to="/auth" onClick={() => setIsOpen(false)} className={language === 'km' ? 'font-khmer' : ''}>
+                    {t('nav.signIn')}
                   </Link>
                 </Button>
                 <Button variant="hero" className="w-full" asChild>
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    {language === 'en' ? 'Request Demo' : 'ស្នើសុំការបង្ហាញ'}
+                  <Link to="/auth" onClick={() => setIsOpen(false)} className={language === 'km' ? 'font-khmer' : ''}>
+                    {t('nav.requestDemo')}
                   </Link>
                 </Button>
               </div>

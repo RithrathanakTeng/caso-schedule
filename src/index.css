@@ -132,16 +132,27 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', 'Battambang', sans-serif;
+    font-family: 'Inter', 'Noto Sans Khmer', sans-serif;
   }
 
   /* Khmer Typography */
   .font-khmer {
-    font-family: 'Battambang', sans-serif;
+    font-family: 'Noto Sans Khmer', 'Battambang', sans-serif;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
   }
 
   .font-english {
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Auto-apply Khmer font when language is set */
+  [data-language="km"] {
+    font-family: 'Noto Sans Khmer', 'Battambang', sans-serif;
+  }
+
+  [data-language="km"] * {
+    line-height: 1.8;
   }
 
   /* Custom Gradient Backgrounds */

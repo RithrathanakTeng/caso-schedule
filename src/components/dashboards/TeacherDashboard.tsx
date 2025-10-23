@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,9 @@ import {
   CalendarDays,
   CheckCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import TeacherScheduleView from '@/components/teacher/TeacherScheduleView';
 import TeacherAvailability from '@/components/teacher/TeacherAvailability';
@@ -25,16 +28,20 @@ import NotificationSystem from '@/components/NotificationSystem';
 import { TeacherSubjectPreferences } from '@/components/teacher/TeacherSubjectPreferences';
 import GlobalNotificationBell from '@/components/GlobalNotificationBell';
 import LanguageToggle from '@/components/LanguageToggle';
+import { toast } from '@/hooks/use-toast';
 
 const TeacherDashboard = () => {
   console.log('🎯 TeacherDashboard: Component rendering');
   
   const { user, profile, institution, signOut } = useAuth();
+  const { t, language } = useLanguage();
   const [stats, setStats] = useState({
     weeklyClasses: 0,
     availabilityUpdated: false,
     notifications: 0
   });
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<Date>(new Date());
 
   console.log('📋 TeacherDashboard: Current state:', { 
     hasUser: !!user, 
@@ -56,6 +63,7 @@ const fetchStats = useCallback(async () => {
       return;
     }
 
+    setIsSyncing(true);
     try {
       console.log('📊 TeacherDashboard: Fetching schedule entries...');
       const { data: scheduleEntries, error: scheduleError } = await supabase
@@ -104,11 +112,19 @@ const fetchStats = useCallback(async () => {
 
       console.log('📈 TeacherDashboard: Setting stats:', newStats);
       setStats(newStats);
+      setLastSync(new Date());
       console.log('✅ TeacherDashboard: Stats fetch completed successfully');
     } catch (error) {
       console.error('❌ TeacherDashboard: Error fetching stats:', error);
+      toast({
+        title: t('common.error'),
+        description: t('error.loadingFailed'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSyncing(false);
     }
-  }, [user?.id, profile?.institution_id]);
+  }, [user?.id, profile?.institution_id, t]);
 
   useEffect(() => {
     // Initial fetch
@@ -153,11 +169,31 @@ const fetchStats = useCallback(async () => {
                 <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-semibold">Teacher Dashboard</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{institution?.name}</p>
+                <h1 className={`text-lg sm:text-xl font-semibold ${language === 'km' ? 'font-khmer' : ''}`}>
+                  {t('teacher.mySchedule')}
+                </h1>
+                <p className={`text-xs sm:text-sm text-muted-foreground hidden sm:block ${language === 'km' ? 'font-khmer' : ''}`}>
+                  {language === 'km' && institution?.name_khmer ? institution.name_khmer : institution?.name}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Sync Indicator */}
+              <div className="hidden md:flex items-center space-x-2">
+                {isSyncing ? (
+                  <>
+                    <Wifi className="h-4 w-4 text-primary animate-pulse" />
+                    <span className="text-xs text-muted-foreground">{t('common.syncing')}</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 text-success" />
+                    <span className="text-xs text-muted-foreground">
+                      {t('common.updated')} {Math.floor((new Date().getTime() - lastSync.getTime()) / 1000) < 5 ? t('common.justNow') : new Date(lastSync).toLocaleTimeString()}
+                    </span>
+                  </>
+                )}
+              </div>
               <LanguageToggle variant="badge" size="sm" />
               <GlobalNotificationBell />
               <div className="text-right hidden md:block">
@@ -177,16 +213,16 @@ const fetchStats = useCallback(async () => {
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm" onClick={fetchStats} className="hidden sm:flex">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+              <Button variant="outline" size="sm" onClick={fetchStats} className="hidden sm:flex" disabled={isSyncing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span className={language === 'km' ? 'font-khmer' : ''}>{t('common.refresh')}</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={fetchStats} className="sm:hidden p-2">
-                <RefreshCw className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={fetchStats} className="sm:hidden p-2" disabled={isSyncing}>
+                <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
               </Button>
               <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <span className={language === 'km' ? 'font-khmer' : ''}>{t('dashboard.logout')}</span>
               </Button>
               <Button variant="outline" size="sm" onClick={signOut} className="sm:hidden p-2">
                 <LogOut className="h-4 w-4" />
