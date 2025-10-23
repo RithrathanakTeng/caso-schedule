@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { extendedTranslations } from './LanguageTranslations';
 
 type Language = 'en' | 'km';
 
@@ -189,6 +190,7 @@ export const translations = {
     'home.cta.subtitle': 'Join hundreds of Cambodian schools already using AI-powered scheduling',
     'home.cta.requestDemo': 'Request Free Demo',
     'home.cta.contactSales': 'Contact Sales',
+    ...extendedTranslations.en
   },
   km: {
     // Navigation
@@ -368,6 +370,7 @@ export const translations = {
     'home.cta.subtitle': 'ចូលរួមជាមួយសាលារៀនកម្ពុជារាប់រយ ដែលកំពុងប្រើប្រាស់ការកាលវិភាគដោយ AI',
     'home.cta.requestDemo': 'ស្នើសុំការបង្ហាញដោយឥតគិតថ្លៃ',
     'home.cta.contactSales': 'ទាក់ទងផ្នែកលក់',
+    ...extendedTranslations.km
   }
 };
 
